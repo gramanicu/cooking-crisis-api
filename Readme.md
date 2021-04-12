@@ -1,3 +1,3 @@
-# Food Crisis API
+# Cooking Crisis API
 
-The backend server for the Food Crisis game.
+The backend server for the Cooking Crisis game.
