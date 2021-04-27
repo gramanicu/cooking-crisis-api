@@ -1,0 +1,26 @@
+{
+  "name": "cooking-crisis-api",
+  "version": "0.0.1",
+  "description": "The REST Api for the CookingCrisis App",
+  "main": "app.js",
+  "scripts": {
+    "test": "node --experimental-specifier-resolution=node app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gramanicu/cooking-crisis-api.git"
+  },
+  "author": "Doxa Studios",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/gramanicu/cooking-crisis-api/issues"
+  },
+  "homepage": "https://github.com/gramanicu/cooking-crisis-api#readme",
+  "type": "module",
+  "dependencies": {
+    "bcrypt": "^5.0.1",
+    "express": "^4.17.1",
+    "lodash": "^4.17.21",
+    "mongoose": "^5.12.5"
+  }
+}
