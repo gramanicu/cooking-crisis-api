@@ -1,24 +1,25 @@
-'use strict';
+"use strict"
 
-import apiRoute from './apis'
-import docsRoute from './docs'
-import errorRoute from './error'
+import apiRoute from "./api"
+import docsRoute from "./docs"
+import errorRoute from "./error"
 
 /**
  * Initializes the router
- * @param {} server 
+ * @param {} server The (express) server that will use the routes
  */
- export default function init(server) {
-    server.get('*', function (req, res, next) {
-        console.log('Request was made to: ' + req.originalUrl)
-        return next();
+export default (server) => {
+    server.get("/", function (req, res) {
+        // Redirect to the newest documentation
+        res.redirect("/docs/v1")
     })
 
-    server.get('/', function (req, res) {
-        res.redirect('/docs/v1')
-    })
+    server.use("/api", apiRoute)
+    server.use("/docs", docsRoute)
+    server.use("/error", errorRoute)
 
-    server.use('/api', apiRoute)
-    server.use('/docs', docsRoute)
-    server.use('/error', errorRoute)
+    server.get("*", function (req, res, next) {
+        // Invalid routes are redirected to home. TODO - decide wether or not it should actually return an error, using the error middleware
+        res.redirect("/")
+    })
 }

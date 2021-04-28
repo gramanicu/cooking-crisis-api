@@ -1,10 +1,10 @@
-  'use strict';
+"use strict"
 
-import { Router } from 'express';
-import errorController from '../controllers/error';
+import { Router } from "express"
+import errorController from "../controllers/error"
 
 let router = Router()
 
-router.get('/', errorController)
+router.get("/", errorController)
 
-export default router;
+export default router
