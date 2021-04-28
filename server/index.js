@@ -43,6 +43,10 @@ export default function () {
         })
 
         try {
+            console.log(
+                "Attempting to connect to the MongoDB Database, using the following uri:",
+                server.get("mongoose-uri")
+            )
             mongoose.connect(
                 server.get("mongoose-uri"),
                 { useNewUrlParser: true, useUnifiedTopology: true },
