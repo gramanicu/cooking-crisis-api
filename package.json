@@ -28,5 +28,9 @@
     "tabWidth": 4,
     "semi": false,
     "singleQuote": false
+  },
+  "engines": {
+    "node": "16.x",
+    "npm": "7.x"
   }
 }
