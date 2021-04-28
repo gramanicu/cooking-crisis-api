@@ -3,6 +3,7 @@
 import express, { json, urlencoded } from "express"
 import routes_init from "./routes"
 import mw_init from "./middleware"
+import mongoose from "mongoose"
 
 export default function () {
     // Private variable
@@ -16,6 +17,7 @@ export default function () {
         server.set("env", config.env)
         server.set("port", config.port)
         server.set("hostname", config.hostname)
+        server.set("mongoose-uri", config.mongoose_uri)
 
         // Built-in middleware that parses json payloads
         server.use(json())
@@ -39,6 +41,16 @@ export default function () {
                 "Express server listening on - http://" + hostname + ":" + port
             )
         })
+
+        try {
+            mongoose.connect(
+                server.get("mongoose-uri"),
+                { useNewUrlParser: true, useUnifiedTopology: true },
+                () => console.log("Connected to the database")
+            )
+        } catch (error) {
+            console.log("Could not connect to the database")
+        }
     }
 
     // The functions that are exported

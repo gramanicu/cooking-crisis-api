@@ -3,13 +3,15 @@
 import userModel from "../../../models/users"
 
 const getUserWithId = (id) => {
-    try {
-        // TODO - find the way to search in the DB
-        // var user = userModel.find()
-    }
+    return null
 }
 
-const getUserWithName = (username) => {}
-const getUserWithEmail = (email) => {}
+async function getUserWithName(username) {
+    const doc = await userModel.findOne({ name: username }).exec()
+    return doc
+}
+const getUserWithEmail = (_email) => {
+    return null
+}
 
 export { getUserWithId, getUserWithName, getUserWithEmail }

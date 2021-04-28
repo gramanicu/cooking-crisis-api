@@ -16,7 +16,12 @@ router.get("/query", (req, res) => {
     const id = req.query.id
 
     if (typeof name !== "undefined" && name) {
-        console.log(getUserWithName(name))
+        // TODO - handle errors better (middleware, idk), send a error response
+        getUserWithName(name)
+            .then((doc) => {
+                res.send(doc)
+            })
+            .catch((error) => console.log(error.message))
     }
 })
 

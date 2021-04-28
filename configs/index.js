@@ -1,22 +1,21 @@
-'use strict'
+"use strict"
 
-import localConfig from './local.js'
-// TODO - add dev and prod
+import localConfig from "./local"
+import developmentConfig from "./development"
+// TODO - add prod
 
 const load_config = (env) => {
-    switch(env) {
-        case 'local': {
+    switch (env) {
+        case "local": {
             return localConfig
         }
-        case 'development': {
+        case "development": {
+            return developmentConfig
+        }
+        case "production": {
             // TODO
             return null
         }
-        case 'production': {
-            // TODO
-            return null
-        }
-
     }
 }
 
@@ -26,17 +25,17 @@ The accepted values for it are "development" or "production"
 
 env = {local, development, production}
 */
-const _env = process.env.NODE_ENV || 'local'
+const _env = process.env.NODE_ENV || "local"
 
 // Import lodash "merge"
-import lodash_pkg from 'lodash';
-const { merge } = lodash_pkg;
+import lodash_pkg from "lodash"
+const { merge } = lodash_pkg
 
 let envConfig = load_config(_env)
 
 // The default values for any config
-let defaultConfig = { 
-    env: _env
-};
+let defaultConfig = {
+    env: _env,
+}
 
 export default merge(defaultConfig, envConfig)
