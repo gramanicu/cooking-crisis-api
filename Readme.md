@@ -25,3 +25,5 @@ There is a special route, for the documentation, _"/docs"_. All the other api ro
 ## Sources
 
 The project structure is partly inspired by [this repo](https://github.com/kelyvin/express-env-example)
+
+© 2021 Doxa Studios (Grama Nicolae, Chifan Cristian, Vitoga Patrick)
