@@ -3,7 +3,7 @@ const { Schema, model } = pkg
 
 const userSchema = new Schema(
     {
-        username: {
+        name: {
             type: String,
             required: true,
         },
