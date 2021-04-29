@@ -3,63 +3,52 @@
 import express, { json, urlencoded } from "express"
 import routes_init from "./routes"
 import mw_init from "./middleware"
-import mongoose from "mongoose"
 
-export default function () {
-    // Private variable
-    let server = express()
-
-    // Public functions
-    let create, start
-
-    create = function (config) {
-        // Server settings
-        server.set("env", config.env)
-        server.set("port", config.port)
-        server.set("hostname", config.hostname)
-        server.set("mongoose-uri", config.mongoose_uri)
-
-        // Built-in middleware that parses json payloads
-        server.use(json())
-
-        // Built-in middleware that parses urlencoded payloads
-        server.use(urlencoded({ extended: true }))
-
-        // Initialize the routes for this server
-        routes_init(server)
-
-        // Initialize the middleware for this server
-        mw_init(server)
-    }
-
-    start = function () {
-        let hostname = server.get("hostname")
-        let port = server.get("port")
-
-        server.listen(port, function () {
-            console.log(
-                "Express server listening on - http://" + hostname + ":" + port
-            )
-        })
-
-        try {
-            console.log(
-                "Attempting to connect to the MongoDB Database, using the following uri:",
-                server.get("mongoose-uri")
-            )
-            mongoose.connect(
-                server.get("mongoose-uri"),
-                { useNewUrlParser: true, useUnifiedTopology: true },
-                () => console.log("Connected to the database")
-            )
-        } catch (error) {
-            console.log("Could not connect to the database")
+export default class Server {
+    constructor(config) {
+        // Singleton
+        if (Server._instance) {
+            return Server._instance
         }
+        Server._instance = this
+
+        this.server = express()
+
+        // Server settings
+        this.server.set("env", config.env)
+        this.server.set("port", config.port)
+        this.server.set("hostname", config.hostname)
+
+        // Middleware init
+        this.server.use(json())
+        this.server.use(urlencoded({ extended: true }))
+
+        // Initialize routes
+        routes_init(this.server)
+
+        // Initialize custom middleware
+        mw_init(this.server)
     }
 
-    // The functions that are exported
-    return {
-        create: create,
-        start: start,
+    start = () => {
+        let hostname = this.server.get("hostname")
+        let port = this.server.get("port")
+
+        this.server
+            .listen(port, () => {
+                console.log("Express server listening port: " + port)
+            })
+            .on("error", (e) => {
+                // Print message to stderr and stop the server
+                console.error(
+                    e.name + " occurred during express init: ",
+                    e.message
+                )
+                process.exit()
+            })
+    }
+
+    get expressServer() {
+        return this.server
     }
 }

@@ -1,11 +1,12 @@
-'use strict'
+"use strict"
 
-import server from './server'
-import config from './configs';
+import server from "./server"
+import config from "./configs"
+import db from "./server/db"
 
-// TODO - check if the server can be transformed into an object
-
-const sv = server()
-
-sv.create(config)
-sv.start();
+// Wait for the db to be connected before anything else
+db(config.mongoose_uri).then(() => {
+    // Init and start the express server
+    const sv = new server(config)
+    sv.start()
+})
