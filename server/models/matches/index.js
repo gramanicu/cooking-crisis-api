@@ -1,6 +1,7 @@
 "use strict"
 
-import { Schema, model } from "mongoose"
+import pkg from "mongoose"
+const { Schema, model } = pkg
 import { user_schema } from "../../constants/users"
 import { match_schema, match_collection } from "../../constants/matches"
 

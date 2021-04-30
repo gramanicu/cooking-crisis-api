@@ -1,4 +1,6 @@
-import { Schema, model } from "mongoose"
+import pkg from "mongoose"
+const { Schema, model } = pkg
+
 import { user_schema } from "../../constants/users"
 import {
     leaderboard_schema,
@@ -7,7 +9,7 @@ import {
 
 const leaderboardSchema = new Schema({
     user_id: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: Schema.Types.ObjectId,
         ref: user_schema,
         required: true,
     },

@@ -1,4 +1,7 @@
-import { Schema, model } from "mongoose"
+"use strict"
+
+import pkg from "mongoose"
+const { Schema, model } = pkg
 import { user_collection, user_schema } from "../../constants/users"
 
 const userSchema = new Schema({
@@ -19,6 +22,11 @@ const userSchema = new Schema({
 
     status: {
         type: String,
+        required: true,
+    },
+
+    elo: {
+        type: Number,
         required: true,
     },
 

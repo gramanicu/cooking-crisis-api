@@ -5,8 +5,13 @@ import config from "./configs"
 import db from "./server/db"
 
 // Wait for the db to be connected before anything else
-db(config.mongoose_uri).then(() => {
-    // Init and start the express server
-    const sv = new server(config)
-    sv.start()
-})
+db(config.mongoose_uri)
+    .then(() => {
+        // Init and start the express server
+        const sv = new server(config)
+        sv.start()
+    })
+    .catch((err) => {
+        console.error("Error encountered, server will close")
+        process.exit()
+    })

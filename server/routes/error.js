@@ -5,6 +5,6 @@ import errorController from "../controllers/error"
 
 let router = Router()
 
-router.get("/", errorController)
+router.use("/", errorController)
 
 export default router

@@ -11,5 +11,7 @@ import errorRoute from "./error"
 export default (server) => {
     server.use("/api", apiRoute)
     server.use("/docs", docsRoute)
-    server.use("/error", errorRoute)
+
+    // For every other route, use error routing (404)
+    server.use(errorRoute)
 }
