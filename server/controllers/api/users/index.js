@@ -1,28 +1,34 @@
 "use strict"
 
 import { Router } from "express"
-import {
-    getUserWithId,
-    getUserWithName,
-    getUserWithEmail,
-} from "../../../services/api/users"
+import { userExists } from "../../../services/api/users"
 
 let router = Router()
 
-// The get route for ".../query?<query params>". For example, ".../query?name=user
-router.get("/query", (req, res) => {
-    const name = req.query.name
-    const email = req.query.email
-    const id = req.query.id
+// GET ../users/exists/<username></username>
+// Check if the user with the <username> name exists
+router.get("/exists/:username", async (req, res) => {
+    if (req.params.username) {
+        const exists = await userExists(req.params.username)
 
-    if (typeof name !== "undefined" && name) {
-        // TODO - handle errors better (middleware, idk), send a error response
-        getUserWithName(name)
-            .then((doc) => {
-                res.send(doc)
-            })
-            .catch((error) => console.log(error.message))
+        if (exists) {
+            res.send("true")
+        } else {
+            res.send("false")
+        }
     }
 })
+
+// GET ../users/status/<username>
+router.get("/status/:username", async (req, res) => {})
+
+// GET ../users/signin
+router.get("/signin", async (req, res) => {})
+
+// POST ../users/new
+router.post("/new", async (req, res) => {})
+
+// PATCH ../users/activation/<activation_link>
+router.patch("/activation/:activation_id", async (req, res) => {})
 
 export default router

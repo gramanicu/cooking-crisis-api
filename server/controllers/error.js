@@ -1,8 +1,9 @@
 "use strict"
 
-function index(req, res) {
-    // TODO - send an actual error message
-    res.send("<h1>Oh shoot, looks like you ran into an error.</h1>")
+function error(req, res, next) {
+    const error = new Error("Not found")
+    error.status = 404
+    next(error)
 }
 
-export default index
+export default error

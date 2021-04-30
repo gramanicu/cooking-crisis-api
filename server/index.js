@@ -1,6 +1,8 @@
 "use strict"
 
 import express, { json, urlencoded } from "express"
+import { addAsync } from "@awaitjs/express"
+import morgan from "morgan"
 import routes_init from "./routes"
 import mw_init from "./middleware"
 
@@ -12,7 +14,8 @@ export default class Server {
         }
         Server._instance = this
 
-        this.server = express()
+        // Asynchronous express
+        this.server = addAsync(express())
 
         // Server settings
         this.server.set("env", config.env)
@@ -22,6 +25,8 @@ export default class Server {
         // Middleware init
         this.server.use(json())
         this.server.use(urlencoded({ extended: true }))
+
+        this.server.use(morgan("dev"))
 
         // Initialize routes
         routes_init(this.server)

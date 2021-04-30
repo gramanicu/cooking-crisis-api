@@ -30,6 +30,8 @@ const connectDB = async (mongoose_uri) => {
                 e.name + " occurred during database connect: ",
                 e.message
             )
+
+            throw e
         }
     )
 }

@@ -22,8 +22,11 @@ There is a special route, for the documentation, _"/docs"_. All the other api ro
 
 <!-- TODO - add the routes -->
 
-## Sources
+### Models
 
-The project structure is partly inspired by [this repo](https://github.com/kelyvin/express-env-example)
+<!-- This heading can be renamed / documentation in it relocated/reorganized -->
+## Various info
+
+The "public" api will never expose the `email` and `password` (even if it is encrypted) of a user. The `email` address can only be accessed after the user has logged in.
 
 © 2021 Doxa Studios (Grama Nicolae, Chifan Cristian, Vitoga Patrick)
