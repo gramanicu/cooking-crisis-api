@@ -1,26 +1,31 @@
 "use strict"
 
 import { Router } from "express"
-import { userExists } from "../../../services/api/users"
+import { userExists, userStatus } from "../../../services/api/users"
 
 let router = Router()
 
-// GET ../users/exists/<username></username>
+// GET ../users/exists/<username>
 // Check if the user with the <username> name exists
 router.get("/exists/:username", async (req, res) => {
-    if (req.params.username) {
-        const exists = await userExists(req.params.username)
+    const exists = await userExists(req.params.username)
 
-        if (exists) {
-            res.send("true")
-        } else {
-            res.send("false")
-        }
-    }
+    res.json({
+        username: req.params.username,
+        exists: exists,
+    })
 })
 
 // GET ../users/status/<username>
-router.get("/status/:username", async (req, res) => {})
+// Check the status of the user with the <username> name
+router.get("/status/:username", async (req, res) => {
+    const status = await userStatus(req.params.username)
+
+    res.json({
+        username: req.params.username,
+        status: status,
+    })
+})
 
 // GET ../users/signin
 router.get("/signin", async (req, res) => {})

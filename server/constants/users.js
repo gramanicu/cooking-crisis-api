@@ -3,6 +3,7 @@
 
 // Const that holds the status of a user
 export const user_status = Object.freeze({
+    undefined: 0,
     offline: 1,
     online: 2,
     afk: 3,
