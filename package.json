@@ -33,7 +33,7 @@
     "singleQuote": false
   },
   "engines": {
-    "node": "16.x",
+    "node": "14.16.1",
     "npm": "7.x"
   },
   "devDependencies": {
