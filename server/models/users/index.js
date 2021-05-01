@@ -20,8 +20,9 @@ const userSchema = new Schema({
         required: true,
     },
 
+    // The number is associated to a user_status from constants
     status: {
-        type: String,
+        type: Number,
         required: true,
     },
 

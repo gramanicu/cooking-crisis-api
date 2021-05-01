@@ -1,29 +1,27 @@
 "use strict"
 
 import { Router } from "express"
-import { userExists, userStatus } from "../../../services/api/users"
+import { createAccount, getUserByName } from "../../../services/api/users"
 
 let router = Router()
 
 // GET ../users/exists/<username>
 // Check if the user with the <username> name exists
-router.get("/exists/:username", async (req, res) => {
-    const exists = await userExists(req.params.username)
-
-    res.json({
-        username: req.params.username,
-        exists: exists,
+router.get("/exists/:username", getUserMiddleware, async (req, res) => {
+    // We know the user exists (because the "getUserMiddleware"
+    // sends 404 message when the user doesn't exist)
+    res.status(200).json({
+        exists: true,
     })
 })
 
 // GET ../users/status/<username>
 // Check the status of the user with the <username> name
-router.get("/status/:username", async (req, res) => {
-    const status = await userStatus(req.params.username)
-
-    res.json({
-        username: req.params.username,
-        status: status,
+router.get("/status/:username", getUserMiddleware, async (req, res) => {
+    // We know the user exists (because the "getUserMiddleware"
+    // sends 404 message when the user doesn't exist)
+    res.status(200).json({
+        status: res.user.status,
     })
 })
 
@@ -31,9 +29,48 @@ router.get("/status/:username", async (req, res) => {
 router.get("/signin", async (req, res) => {})
 
 // POST ../users/new
-router.post("/new", async (req, res) => {})
+// Signup a new user. The data is verified (send response if invalid).
+// Creates the activation link and sends back success message signup successful
+router.post("/new", async (req, res, next) => {
+    try {
+        const status = await createAccount(
+            req.body.username,
+            req.body.password,
+            req.body.email
+        )
+
+        if (status.type == "error") {
+            return res.status(409).json({ error: { message: status.message } })
+        }
+
+        // The account creation succeeded
+        return res.status(201).json({ success: { message: status.message } })
+    } catch (err) {
+        next(err)
+    }
+})
 
 // PATCH ../users/activation/<activation_link>
 router.patch("/activation/:activation_id", async (req, res) => {})
+
+// Middleware used in the routes that provide a ":username"
+async function getUserMiddleware(req, res, next) {
+    let user
+
+    try {
+        user = await getUserByName(req.params.username)
+
+        if (user == null) {
+            return res
+                .status(404)
+                .json({ error: { message: "Cannot find user" } })
+        }
+    } catch (err) {
+        next(err)
+    }
+
+    res.user = user
+    next()
+}
 
 export default router
