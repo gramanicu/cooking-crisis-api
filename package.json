@@ -32,6 +32,10 @@
     "semi": false,
     "singleQuote": false
   },
+  "engines": {
+    "node": "14.16.1",
+    "npm": "6.14.12"
+  },
   "devDependencies": {
     "nodemon": "^2.0.7"
   }

@@ -8,6 +8,7 @@ import {
     emailRegexp,
     salting_rounds,
     starting_elo,
+    usernameRegexp,
 } from "../../../constants/utils"
 import userModel from "../../../models/users"
 import bcrypt from "bcrypt"
@@ -39,14 +40,26 @@ export async function createAccount(username, password, email) {
     // have multiple accounts on the same email, but with different roles (player & admin)
     const passwordTester = new RegExp(passwordRegexp)
     const emailTester = new RegExp(emailRegexp)
+    const usernameTester = new RegExp(usernameRegexp)
 
     // Check username
-    const usernameExisting = await userModel.exists({ name: username })
-    if (usernameExisting) {
+    const usernameValid = usernameTester.test(username)
+    if (!usernameValid) {
         return {
             type: "error",
-            message: "Username in use",
+            message: "Username is not a valid name",
         }
+    }
+    try {
+        const usernameExisting = await userModel.exists({ name: username })
+        if (usernameExisting) {
+            return {
+                type: "error",
+                message: "Username in use",
+            }
+        }
+    } catch (err) {
+        throw new Error(err)
     }
 
     // Check password
@@ -69,16 +82,20 @@ export async function createAccount(username, password, email) {
     }
 
     // Check that there is no other user with the same email that is a player
-    const emailTypeExisting = await userModel.exists({
-        email: email,
-        isAdmin: false,
-    })
+    try {
+        const emailTypeExisting = await userModel.exists({
+            email: email,
+            isAdmin: false,
+        })
 
-    if (emailTypeExisting) {
-        return {
-            type: "error",
-            message: "Another account is linked to the email address",
+        if (emailTypeExisting) {
+            return {
+                type: "error",
+                message: "Another account is linked to the email address",
+            }
         }
+    } catch (err) {
+        throw new Error(err)
     }
 
     // Encrypt password
@@ -96,11 +113,54 @@ export async function createAccount(username, password, email) {
     })
 
     // Create the account
-    await user.save()
+    try {
+        await user.save()
+    } catch (err) {
+        throw new Error(err)
+    }
 
     return {
         type: "success",
         message:
             "Account created. An activation link was sent to the provided email",
+    }
+}
+
+export async function verifySignIn(username, password) {
+    const passwordTester = new RegExp(passwordRegexp)
+    const usernameTester = new RegExp(usernameRegexp)
+
+    // Check if the provided account could be an IGN
+    const usernameValid = usernameTester.test(username)
+    if (!usernameValid) {
+        return false
+    }
+
+    // Check if the provided password is valid
+    const passwordValid = passwordTester.test(password)
+    if (!passwordValid) {
+        return false
+    }
+
+    try {
+        const userData = await userModel
+            .find({
+                name: username,
+            })
+            .limit(1)
+
+        if (userData.length) {
+            const correctPassword = await bcrypt.compare(
+                password,
+                userData[0].password
+            )
+
+            return correctPassword
+        } else {
+            return false
+        }
+    } catch (err) {
+        console.log(err)
+        throw new Error(err)
     }
 }

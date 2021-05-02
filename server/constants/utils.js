@@ -9,6 +9,10 @@ export const emailRegexp = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/
 export const passwordRegexp =
     "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[#!$%&'()*+,-./:;<=>?@^_`{|}~])(?=.{8,32})"
 
+// A regex string used to validate the IGN (alphanumeric + some special chars). Between
+// 1 and 16 chars
+export const usernameRegexp = /^[ A-Za-z0-9_./#&+-]{1,16}$/
+
 // Salting rounds used by bcrypt
 export const salting_rounds = 16
 

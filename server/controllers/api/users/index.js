@@ -1,7 +1,11 @@
 "use strict"
 
 import { Router } from "express"
-import { createAccount, getUserByName } from "../../../services/api/users"
+import {
+    createAccount,
+    getUserByName,
+    verifySignIn,
+} from "../../../services/api/users"
 
 let router = Router()
 
@@ -26,7 +30,33 @@ router.get("/status/:username", getUserMiddleware, async (req, res) => {
 })
 
 // GET ../users/signin
-router.get("/signin", async (req, res) => {})
+// Login a user into it's account. The first request should have "move" flag
+// (to change the device) set to false. When set to true, a new jwt token
+// will be generated
+router.get("/signin", async (req, res, next) => {
+    try {
+        const connected = await verifySignIn(
+            req.body.username,
+            req.body.password
+        )
+
+        if (connected) {
+            res.status(200).json({
+                success: {
+                    message: "Login was successful",
+                },
+            })
+        } else {
+            res.status(400).json({
+                error: {
+                    message: "Username or password invalid",
+                },
+            })
+        }
+    } catch (err) {
+        next(err)
+    }
+})
 
 // POST ../users/new
 // Signup a new user. The data is verified (send response if invalid).
