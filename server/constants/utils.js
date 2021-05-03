@@ -11,7 +11,7 @@ export const passwordRegexp =
 
 // A regex string used to validate the IGN (alphanumeric + some special chars). Between
 // 1 and 16 chars
-export const usernameRegexp = /^[ A-Za-z0-9_./#&+-]{1,16}$/
+export const usernameRegexp = /^[ A-Za-z0-9_.#&-]{1,16}$/
 
 // Salting rounds used by bcrypt
 export const salting_rounds = 16
