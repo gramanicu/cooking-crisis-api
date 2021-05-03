@@ -1,34 +1,97 @@
 "use strict"
 
 import { Router } from "express"
-import { userExists } from "../../../services/api/users"
+import {
+    createAccount,
+    verifySignIn,
+    activateAccount,
+} from "../../../services/api/users"
+import { getUser as getUserMiddleware } from "../../../middleware/users"
 
 let router = Router()
 
-// GET ../users/exists/<username></username>
+// GET ../users/exists/<username>
 // Check if the user with the <username> name exists
-router.get("/exists/:username", async (req, res) => {
-    if (req.params.username) {
-        const exists = await userExists(req.params.username)
-
-        if (exists) {
-            res.send("true")
-        } else {
-            res.send("false")
-        }
-    }
+router.get("/exists/:username", getUserMiddleware, async (req, res) => {
+    // We know the user exists (because the "getUserMiddleware"
+    // sends 404 message when the user doesn't exist)
+    res.status(200).json({
+        exists: true,
+    })
 })
 
 // GET ../users/status/<username>
-router.get("/status/:username", async (req, res) => {})
+// Check the status of the user with the <username> name
+router.get("/status/:username", getUserMiddleware, async (req, res) => {
+    // We know the user exists (because the "getUserMiddleware"
+    // sends 404 message when the user doesn't exist)
+    res.status(200).json({
+        status: req.user.status,
+    })
+})
 
-// GET ../users/signin
-router.get("/signin", async (req, res) => {})
+// POST ../users/signin
+// Login a user into it's account. The first request should have "move" flag
+// (to change the device) set to false. When set to true, a new jwt token
+// will be generated
+router.post("/signin", async (req, res, next) => {
+    try {
+        const status = await verifySignIn(req.body.username, req.body.password)
+
+        if (status.type == "success") {
+            res.status(200).json({
+                success: {
+                    message: "Login was successful",
+                    jwt_token: status.jwt_token,
+                },
+            })
+        } else {
+            res.status(401).json({
+                error: {
+                    message: "Username or password invalid",
+                },
+            })
+        }
+    } catch (err) {
+        next(err)
+    }
+})
 
 // POST ../users/new
-router.post("/new", async (req, res) => {})
+// Signup a new user. The data is verified (send response if invalid).
+// Creates the activation link and sends back success message signup successful
+router.post("/new", async (req, res, next) => {
+    try {
+        const status = await createAccount(
+            req.body.username,
+            req.body.password,
+            req.body.email
+        )
 
-// PATCH ../users/activation/<activation_link>
-router.patch("/activation/:activation_id", async (req, res) => {})
+        if (status.type == "error") {
+            return res.status(409).json({ error: { message: status.message } })
+        }
+
+        // The account creation succeeded
+        return res.status(201).json({ success: { message: status.message } })
+    } catch (err) {
+        next(err)
+    }
+})
+
+// GET ../users/activation/<activation_link>
+router.get("/activation/:activation_id", async (req, res, next) => {
+    try {
+        const status = await activateAccount(req.params.activation_id)
+        if (status.type == "error") {
+            return res.status(404).json({ error: { message: status.message } })
+        }
+
+        // The email activation succeeded
+        return res.status(201).json({ success: { message: status.message } })
+    } catch (err) {
+        next(err)
+    }
+})
 
 export default router

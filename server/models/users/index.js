@@ -2,12 +2,24 @@
 
 import pkg from "mongoose"
 const { Schema, model } = pkg
-import { user_collection, user_schema } from "../../constants/users"
+import {
+    user_collection,
+    user_schema,
+    user_status,
+} from "../../constants/users"
+import { activation_expiry_time, starting_elo } from "../../constants/utils"
 
 const userSchema = new Schema({
     name: {
         type: String,
         required: true,
+        unique: true,
+    },
+
+    lowercase_name: {
+        type: String,
+        required: true,
+        unique: true,
     },
 
     email: {
@@ -20,20 +32,40 @@ const userSchema = new Schema({
         required: true,
     },
 
+    // The number is associated to a user_status from constants
     status: {
-        type: String,
+        type: Number,
         required: true,
+        default: user_status.offline,
     },
 
     elo: {
         type: Number,
         required: true,
+        default: starting_elo,
     },
 
     isAdmin: {
         type: Boolean,
         required: false,
         default: false,
+    },
+
+    activated: {
+        type: Boolean,
+        required: false,
+        default: false,
+    },
+
+    activation_token: {
+        type: String,
+        required: false,
+    },
+
+    activation_expiry: {
+        type: Date,
+        required: false,
+        default: () => new Date(+new Date() + activation_expiry_time),
     },
 })
 

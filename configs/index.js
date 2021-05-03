@@ -2,6 +2,11 @@
 
 import localConfig from "./local"
 import developmentConfig from "./development"
+
+// Import lodash "merge"
+import lodash_pkg from "lodash"
+const { merge } = lodash_pkg
+
 // TODO - add prod
 
 const load_config = (env) => {
@@ -27,15 +32,13 @@ env = {local, development, production}
 */
 const _env = process.env.NODE_ENV || "local"
 
-// Import lodash "merge"
-import lodash_pkg from "lodash"
-const { merge } = lodash_pkg
-
 let envConfig = load_config(_env)
 
 // The default values for any config
 let defaultConfig = {
     env: _env,
+    mongoose_uri: process.env.MONGOOSE_URI,
+    jwt_secret: process.env.JWT_TOKEN,
 }
 
 export default merge(defaultConfig, envConfig)

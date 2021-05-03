@@ -41,7 +41,7 @@ export default class Server {
 
         this.server
             .listen(port, () => {
-                console.log("Express server listening port: " + port)
+                console.log("Express server started on: " + hostname)
             })
             .on("error", (e) => {
                 // Print message to stderr and stop the server
