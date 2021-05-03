@@ -41,6 +41,7 @@ export async function createAccount(username, password, email) {
     const passwordTester = new RegExp(passwordRegexp)
     const emailTester = new RegExp(emailRegexp)
     const usernameTester = new RegExp(usernameRegexp)
+    const lc_name = username.toLowerCase()
 
     // Check username
     const usernameValid = usernameTester.test(username)
@@ -51,7 +52,9 @@ export async function createAccount(username, password, email) {
         }
     }
     try {
-        const usernameExisting = await userModel.exists({ name: username })
+        const usernameExisting = await userModel.exists({
+            lowercase_name: lc_name,
+        })
         if (usernameExisting) {
             return {
                 type: "error",
@@ -105,6 +108,7 @@ export async function createAccount(username, password, email) {
     // Set the other account data: isAdmin=false, ELO = starting_elo, status = offline
     const user = new userModel({
         name: username,
+        lowercase_name: lc_name,
         email: email,
         password: encryptedPwd,
         status: user_status.offline,
@@ -129,6 +133,7 @@ export async function createAccount(username, password, email) {
 export async function verifySignIn(username, password) {
     const passwordTester = new RegExp(passwordRegexp)
     const usernameTester = new RegExp(usernameRegexp)
+    const lc_name = username.toLowerCase()
 
     // Check if the provided account could be an IGN
     const usernameValid = usernameTester.test(username)
@@ -137,7 +142,7 @@ export async function verifySignIn(username, password) {
     }
 
     // Check if the provided password is valid
-    const passwordValid = passwordTester.test(password)
+    const passwordValid = passwordTester.test(passwordValid)
     if (!passwordValid) {
         return false
     }
@@ -145,7 +150,7 @@ export async function verifySignIn(username, password) {
     try {
         const userData = await userModel
             .find({
-                name: username,
+                lowercase_name: lc_name,
             })
             .limit(1)
 
