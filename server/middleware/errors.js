@@ -3,7 +3,7 @@
 export default (err, req, res, next) => {
     res.status(err.status || 500)
 
-    if (err.status) {
+    if (err.status && err.status != 404) {
         res.json({
             error: {
                 message: err.message,
@@ -11,6 +11,12 @@ export default (err, req, res, next) => {
         })
 
         console.error(err)
+    } else if (err.status == 404) {
+        res.json({
+            error: {
+                message: err.message,
+            },
+        })
     } else {
         res.json({
             error: {

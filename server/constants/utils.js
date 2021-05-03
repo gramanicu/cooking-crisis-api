@@ -18,3 +18,11 @@ export const salting_rounds = 16
 
 // TODO - research the actual starting value
 export const starting_elo = 500
+
+// The email activation link expiry time (milliseconds * seconds * minutes * hours * days)
+// Currently set to 3 days
+export const activation_expiry_time = 1000 * 60 * 60 * 24 * 3
+
+export const email_name = "CookingCrisis"
+
+export const jwt_expiry_time = "1800"

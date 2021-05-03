@@ -3,9 +3,10 @@
 import { Router } from "express"
 import {
     createAccount,
-    getUserByName,
     verifySignIn,
+    activateAccount,
 } from "../../../services/api/users"
+import { getUser as getUserMiddleware } from "../../../middleware/users"
 
 let router = Router()
 
@@ -25,29 +26,27 @@ router.get("/status/:username", getUserMiddleware, async (req, res) => {
     // We know the user exists (because the "getUserMiddleware"
     // sends 404 message when the user doesn't exist)
     res.status(200).json({
-        status: res.user.status,
+        status: req.user.status,
     })
 })
 
-// GET ../users/signin
+// POST ../users/signin
 // Login a user into it's account. The first request should have "move" flag
 // (to change the device) set to false. When set to true, a new jwt token
 // will be generated
-router.get("/signin", async (req, res, next) => {
+router.post("/signin", async (req, res, next) => {
     try {
-        const connected = await verifySignIn(
-            req.body.username,
-            req.body.password
-        )
+        const status = await verifySignIn(req.body.username, req.body.password)
 
-        if (connected) {
+        if (status.type == "success") {
             res.status(200).json({
                 success: {
                     message: "Login was successful",
+                    jwt_token: status.jwt_token,
                 },
             })
         } else {
-            res.status(400).json({
+            res.status(401).json({
                 error: {
                     message: "Username or password invalid",
                 },
@@ -80,27 +79,19 @@ router.post("/new", async (req, res, next) => {
     }
 })
 
-// PATCH ../users/activation/<activation_link>
-router.patch("/activation/:activation_id", async (req, res) => {})
-
-// Middleware used in the routes that provide a ":username"
-async function getUserMiddleware(req, res, next) {
-    let user
-
+// GET ../users/activation/<activation_link>
+router.get("/activation/:activation_id", async (req, res, next) => {
     try {
-        user = await getUserByName(req.params.username)
-
-        if (user == null) {
-            return res
-                .status(404)
-                .json({ error: { message: "Cannot find user" } })
+        const status = await activateAccount(req.params.activation_id)
+        if (status.type == "error") {
+            return res.status(404).json({ error: { message: status.message } })
         }
+
+        // The email activation succeeded
+        return res.status(201).json({ success: { message: status.message } })
     } catch (err) {
         next(err)
     }
-
-    res.user = user
-    next()
-}
+})
 
 export default router
