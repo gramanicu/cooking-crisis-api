@@ -29,7 +29,7 @@ As defined in [#15](https://github.com/gramanicu/cooking-crisis-api/issues/15), 
 - `../users/activation/:activation_token` - activate the user's account. This link is received in the provided email, after account creation. The token is provided as a _request parameter_.
 - `../users/new` - create a new "_player_" account. The data must be sent in the request body in the following json format:
 
-  ```json
+  ```js
     {
         "username": "user",
         "password": "12abCD-.",
@@ -46,7 +46,7 @@ As defined in [#15](https://github.com/gramanicu/cooking-crisis-api/issues/15), 
 
 - `../users/signin` - sign in into an account (player or admin). For the login, only the IGN can be used. However, the sign in is case insensitive. The data must be sent in the request body in the following json format:
 
-  ```json
+  ```js
     {
         "username": "user",
         "password": "12abCD-.",
@@ -63,7 +63,7 @@ This model contains all the data related to the users accounts. Some fields (lik
 
 The status field is defined in the `server/constants`, inside a "enum" (sort of, as they don't actually exist in js), `user_status`. Each number represents a specific user state (ex. "1 = _offline_", "4 = _playing_"). The `activated` fields represents whether or not the email address was verified and the account is now valid.
 
-```json
+```js
 {
     // Data shared by all user types
     "name": String,
