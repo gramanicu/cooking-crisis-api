@@ -38,7 +38,8 @@ let envConfig = load_config(_env)
 let defaultConfig = {
     env: _env,
     mongoose_uri: process.env.MONGOOSE_URI,
-    jwt_secret: process.env.JWT_TOKEN,
+    jwt_access_secret: process.env.JWT_ACCESS_SECRET,
+    jwt_refresh_secret: process.env.JWT_REFRESH_SECRET,
 }
 
 export default merge(defaultConfig, envConfig)

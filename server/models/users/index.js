@@ -51,6 +51,16 @@ const userSchema = new Schema({
         default: false,
     },
 
+    created_at: {
+        type: Date,
+        default: Date.now,
+    },
+
+    refresh_token: {
+        type: String,
+        required: false,
+    },
+
     activated: {
         type: Boolean,
         required: false,

@@ -49,11 +49,21 @@ As defined in [#15](https://github.com/gramanicu/cooking-crisis-api/issues/15), 
   ```js
     {
         "username": "user",
-        "password": "12abCD-.",
+        "password": "12abCD-."
     }
   ```
 
-  The request will return (among other stuff), if successful, the JWT token used to access the _private user routes_.
+  The request will return (among other stuff), if successful: the `jwt_access_token` (used to access _private user routes_), `jwt_refresh_token` (a token obtained only by logging in, used to create/refresh the jwt_access_token) and the duration of time the access token will last for.
+
+- `../users/token` - obtain a new JWT access token (used for _private user routes_), based on the refresh token. The refresh token is valid for a long period of time, and is created during the _signin_. The data must be sent in the request body in the following json format:
+
+  ```js
+    {
+        "refresh_token": "the refresh jwt"
+    }
+  ```
+
+  The request will return (among other stuff), if successful, a new JWT access token, used to access the _private user routes_.
 
 ### Models
 
@@ -73,8 +83,13 @@ The status field is defined in the `server/constants`, inside a "enum" (sort of,
     "status": Number,
     "elo": Number,
     "isAdmin": Boolean,
+    "created_at": Date,
     "activated": Boolean,
-    
+
+    // This is the token used to refresh JWT auth tokens
+    // (created at login)
+    "refresh_token": String,
+
     // These are not required, as they are 
     // deleted after the account is created
     "activation_token": String,
