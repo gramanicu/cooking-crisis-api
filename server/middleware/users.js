@@ -29,8 +29,8 @@ export async function authJWT(req, res, next) {
     if (token == null) return res.sendStatus(401)
 
     try {
-        const user = jwt.verify(token, config.jwt_secret)
-        req.decoded_user = user
+        const user = jwt.verify(token, config.jwt_access_secret)
+        req.user_id = user._id
         next()
     } catch (err) {
         next(err)
