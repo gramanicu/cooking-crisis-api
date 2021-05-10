@@ -8,7 +8,8 @@ import {
     emailRegexp,
     salting_rounds,
     usernameRegexp,
-    jwt_expiry_time,
+    jwt_access_expiry_time,
+    jwt_refresh_expiry_time,
 } from "../../../constants/utils"
 import userModel from "../../../models/users"
 import bcrypt from "bcrypt"
@@ -16,6 +17,7 @@ import crypto from "crypto"
 import { send_verification } from "../../mail"
 import config from "../../../../configs"
 import jwt from "jsonwebtoken"
+import { user_status } from "../../../constants/users"
 
 /**
  * Get a user based on his IGN
@@ -225,11 +227,20 @@ export async function verifySignIn(username, password) {
 
             // If the password is correct, generate the JWT and return the data
             if (correctPassword) {
-                const jwt_token = await generateAccessToken(userData[0].id)
+                const access_token = await generateAccessToken(userData[0].id)
+                const refresh_token = await generateRefreshToken(userData[0].id)
+
+                // Save the refresh token for the current session
+                // and update the user status
+                userData[0].refresh_token = refresh_token
+                userData[0].status = user_status.online
+                await userData[0].save()
+
                 return {
                     type: "success",
                     message: "Login was successful",
-                    jwt_token: jwt_token,
+                    access_token: access_token,
+                    refresh_token: refresh_token,
                 }
             }
         }
@@ -237,6 +248,77 @@ export async function verifySignIn(username, password) {
         return {
             type: "error",
             message: "Invalid login",
+        }
+    } catch (err) {
+        throw new Error(err)
+    }
+}
+
+/**
+ * Signs the user out from his account.
+ * @param {String} refreshToken The JWT refresh token.
+ */
+export async function signOutAccount(refreshToken) {
+    try {
+        // Get the user id from the refreshToken
+        const decoded_id = jwt.verify(refreshToken, config.jwt_refresh_secret)
+
+        // Check if the id is valid (the token actually had a valid id)
+        const userData = await userModel.findById(decoded_id).limit(1)
+
+        if (userData.length) {
+            // Check if the refresh token is the one assigned to this user
+            if (refreshToken == userData[0].access_token) {
+                userData[0].refresh_token = undefined
+                userData[0].status = user_status.offline
+                await userData[0].save()
+
+                return {
+                    type: "success",
+                    message: "User is signed out.",
+                }
+            }
+        }
+
+        return {
+            type: "error",
+            message: "The refresh token does not exist.",
+        }
+    } catch (err) {
+        throw new Error(err)
+    }
+}
+
+/**
+ * Creates a new JWT access token for the user that has the specified refresh token.
+ * @param {String} refreshToken The JWT refresh token.
+ */
+export async function refreshAccessToken(refreshToken) {
+    try {
+        // Get the user id from the refreshToken
+        const decoded_id = jwt.verify(refreshToken, config.jwt_refresh_secret)
+
+        // Check if the id is valid (the token actually had a valid id)
+        const userData = await userModel.findById(decoded_id._id)
+
+        if (userData) {
+            // Check if the refresh token is the one assigned to this user
+            if (refreshToken == userData.refresh_token) {
+                const new_access_token = await generateAccessToken(
+                    userData.refresh_token
+                )
+
+                return {
+                    type: "success",
+                    message: "Access token was refreshed",
+                    access_token: new_access_token,
+                }
+            }
+        }
+
+        return {
+            type: "error",
+            message: "The refresh token does not exist.",
         }
     } catch (err) {
         throw new Error(err)
@@ -256,10 +338,23 @@ export async function deleteExpiredTokens() {
 }
 
 /**
- * Generate a JWT based on the _id of an user
+ * Generate a JWT access token based on the _id of an user.
  * @param {String} _id The id of the user
- * @returns
+ * @returns The access token
  */
 export async function generateAccessToken(_id) {
-    return jwt.sign({ _id }, config.jwt_secret, { expiresIn: jwt_expiry_time })
+    return jwt.sign({ _id }, config.jwt_access_secret, {
+        expiresIn: jwt_access_expiry_time,
+    })
+}
+
+/**
+ * Generate a JWT refresh token based on the _id of an user
+ * @param {String} _id The id of the user
+ * @returns The refresh token
+ */
+export async function generateRefreshToken(_id) {
+    return jwt.sign({ _id }, config.jwt_refresh_secret, {
+        expiresIn: jwt_refresh_expiry_time,
+    })
 }

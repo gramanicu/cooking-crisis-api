@@ -25,4 +25,5 @@ export const activation_expiry_time = 1000 * 60 * 60 * 24 * 3
 
 export const email_name = "CookingCrisis"
 
-export const jwt_expiry_time = "1800"
+export const jwt_access_expiry_time = "10m"
+export const jwt_refresh_expiry_time = "7d"
