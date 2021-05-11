@@ -10,15 +10,13 @@ import config from "../../configs"
 export async function getUser(req, res, next) {
     const username = req.params.username
 
-    if (username == null) {
-        return res.status(400)
-    }
-
     try {
         const user = await getUserByName(username)
 
         if (user == null) {
-            return res.status(404)
+            let err = new Error("User does not exist")
+            err.status = 404
+            next(err)
         }
 
         req.user = user
@@ -33,7 +31,9 @@ export async function authJWT(req, res, next) {
     const token = authHeader && authHeader.split(" ")[1]
 
     if (token == null) {
-        return res.status(401)
+        let err = new Error("Auth JWT was not provided")
+        err.status = 401
+        next(err)
     }
 
     try {
@@ -41,6 +41,8 @@ export async function authJWT(req, res, next) {
         req.user_id = user._id
         next()
     } catch (err) {
+        err = new Error("The provided token is not a valid JWT")
+        err.status = 401
         next(err)
     }
 }

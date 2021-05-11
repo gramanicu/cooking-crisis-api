@@ -268,7 +268,15 @@ export async function verifySignIn(username, password) {
 export async function signOutAccount(refreshToken) {
     try {
         // Get the user id from the refreshToken
-        const decoded_id = jwt.verify(refreshToken, config.jwt_refresh_secret)
+        var decoded_id
+        try {
+            decoded_id = jwt.verify(refreshToken, config.jwt_refresh_secret)
+        } catch (err) {
+            return {
+                type: "error",
+                message: "The provided data is not a valid JWT",
+            }
+        }
 
         // Check if the id is valid (the token actually had a valid id)
         const userData = await userModel.findById(decoded_id).limit(1)
@@ -303,7 +311,15 @@ export async function signOutAccount(refreshToken) {
 export async function refreshAccessToken(refreshToken) {
     try {
         // Get the user id from the refreshToken
-        const decoded_id = jwt.verify(refreshToken, config.jwt_refresh_secret)
+        var decoded_id
+        try {
+            decoded_id = jwt.verify(refreshToken, config.jwt_refresh_secret)
+        } catch (err) {
+            return {
+                type: "error",
+                message: "The provided data is not a valid JWT",
+            }
+        }
 
         // Check if the id is valid (the token actually had a valid id)
         const userData = await userModel.findById(decoded_id._id)
