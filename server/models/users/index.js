@@ -45,7 +45,7 @@ const userSchema = new Schema({
         default: starting_elo,
     },
 
-    isAdmin: {
+    is_admin: {
         type: Boolean,
         required: true,
         default: false,
@@ -70,6 +70,7 @@ const userSchema = new Schema({
     activation_token: {
         type: String,
         required: false,
+        sparse: true,
     },
 
     activation_expiry: {
