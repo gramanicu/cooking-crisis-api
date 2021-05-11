@@ -202,8 +202,8 @@ export async function activateAccount(token) {
 
         if (doc.length) {
             doc[0].activated = true
-            doc[0].set("activation_token", undefined, { strict: true })
-            doc[0].set("activation_expiry", undefined, { strict: true })
+            doc[0].activation_token = undefined
+            doc[0].activation_expiry = undefined
 
             await doc[0].save()
 

@@ -70,6 +70,7 @@ const userSchema = new Schema({
     activation_token: {
         type: String,
         required: false,
+        sparse: true,
     },
 
     activation_expiry: {
