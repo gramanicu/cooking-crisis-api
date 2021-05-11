@@ -41,7 +41,7 @@ export async function authJWT(req, res, next) {
         req.user_id = user._id
         next()
     } catch (err) {
-        err = new Error("The provided token is not a valid JWT")
+        err = new Error("The provided token is not valid")
         err.status = 401
         next(err)
     }

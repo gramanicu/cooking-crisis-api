@@ -45,7 +45,7 @@ const userSchema = new Schema({
         default: starting_elo,
     },
 
-    isAdmin: {
+    is_admin: {
         type: Boolean,
         required: true,
         default: false,
