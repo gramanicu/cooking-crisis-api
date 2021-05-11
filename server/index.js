@@ -5,6 +5,8 @@ import { addAsync } from "@awaitjs/express"
 import morgan from "morgan"
 import routes_init from "./routes"
 import mw_init from "./middleware"
+import cors_mw from "./middleware/cors"
+import cors from "./middleware/cors"
 
 export default class Server {
     constructor(config) {
@@ -27,6 +29,7 @@ export default class Server {
         this.server.use(urlencoded({ extended: true }))
 
         this.server.use(morgan("dev"))
+        this.server.use(cors)
 
         // Initialize routes
         routes_init(this.server)
