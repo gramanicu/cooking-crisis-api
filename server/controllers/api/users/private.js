@@ -7,6 +7,10 @@ import {
     signOutAccount,
     changePassword,
 } from "../../../services/api/users"
+import {
+    getJSON as getCacheJson,
+    cacheJSON as setCacheJson,
+} from "../../../middleware/caching"
 import { authJWT } from "../../../middleware/users"
 
 let router = Router()
@@ -15,7 +19,15 @@ let router = Router()
 // Get data associated to the user account
 router.get("/account", authJWT, async (req, res, next) => {
     try {
+        const cache_key = "account_cache-" + req.user_id
+        const account_data = await getCacheJson(cache_key)
+        if (account_data) {
+            // Return the existing access token
+            return res.status(200).json(account_data)
+        }
+
         const user = await getUserByIdSafe(req.user_id)
+        setCacheJson(cache_key, user)
         return res.status(200).json(user)
     } catch (err) {
         next(err)

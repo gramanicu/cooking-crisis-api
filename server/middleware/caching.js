@@ -7,8 +7,15 @@
 "use strict"
 
 import Redis from "ioredis"
+import { cache_default_ttl } from "../constants/utils"
+import config from "../../configs"
 
-const redis = new Redis()
+var redis
+if (config.redis_url) {
+    redis = new Redis(config.redis_url)
+} else {
+    redis = new Redis()
+}
 
 export async function routeCacheMiddleware(req, res, next) {
     const key = "route_cache-" + (req.originalUrl || req.url)
@@ -22,7 +29,7 @@ export async function routeCacheMiddleware(req, res, next) {
         res.aux_send = res.send
         res.send = async (body) => {
             if (res.statusCode == 200 || res.statusCode == 201) {
-                await cacheJSON(key, body, 15)
+                await cacheJSON(key, body, cache_default_ttl)
             }
             res.aux_send(body)
         }
@@ -66,7 +73,7 @@ export async function getJSON(key) {
  * @param {String|Number} value The value to store
  * @param {Number} ttl The "time to live" of the key-value pair (in seconds)
  */
-export async function cacheValue(key, value, ttl) {
+export async function cacheValue(key, value, ttl = cache_default_ttl) {
     try {
         if (ttl) {
             await redis.set(key, value, "ex", ttl)
@@ -84,7 +91,7 @@ export async function cacheValue(key, value, ttl) {
  * @param {Object} json A json object to be stored
  * @param {Number} ttl The "time to live"  of the key-value (in seconds)
  */
-export async function cacheJSON(key, json, ttl) {
+export async function cacheJSON(key, json, ttl = cache_default_ttl) {
     try {
         if (ttl) {
             await redis.set(key, JSON.stringify(json), "ex", ttl)
