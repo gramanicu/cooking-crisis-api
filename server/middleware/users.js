@@ -8,11 +8,17 @@ import config from "../../configs"
 // and then search for that user in the DB. If the user is found,
 // his account data is stored in the "res"
 export async function getUser(req, res, next) {
+    const username = req.params.username
+
+    if (username == null) {
+        return res.status(400)
+    }
+
     try {
-        const user = await getUserByName(req.params.username)
+        const user = await getUserByName(username)
 
         if (user == null) {
-            res.sendStatus(404)
+            return res.status(404)
         }
 
         req.user = user
@@ -26,7 +32,9 @@ export async function authJWT(req, res, next) {
     const authHeader = req.headers["authorization"]
     const token = authHeader && authHeader.split(" ")[1]
 
-    if (token == null) return res.sendStatus(401)
+    if (token == null) {
+        return res.status(401)
+    }
 
     try {
         const user = jwt.verify(token, config.jwt_access_secret)

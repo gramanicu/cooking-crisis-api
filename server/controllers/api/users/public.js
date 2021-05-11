@@ -45,7 +45,7 @@ router.post("/signin", async (req, res, next) => {
     if (username == null || password == null) {
         return res.status(401).json({
             error: {
-                message: "Username or password invalid",
+                message: "Username or password were not provided",
             },
         })
     }
@@ -56,7 +56,7 @@ router.post("/signin", async (req, res, next) => {
         if (status.type == "success") {
             return res.status(200).json({
                 success: {
-                    message: "Login was successful",
+                    message: status.message,
                     jwt_access_token: status.access_token,
                     jwt_refresh_token: status.refresh_token,
                     access_expiry: jwt_access_expiry_time,
@@ -65,7 +65,7 @@ router.post("/signin", async (req, res, next) => {
         } else {
             return res.status(401).json({
                 error: {
-                    message: "Username or password invalid",
+                    message: status.message,
                 },
             })
         }
@@ -114,12 +114,20 @@ router.get("/token", async (req, res, next) => {
 // Signup a new user. The data is verified (send response if invalid).
 // Creates the activation link and sends back success message signup successful
 router.post("/new", async (req, res, next) => {
+    const username = req.body.username
+    const password = req.body.password
+    const email = req.body.email
+
+    if (username == null || password == null || email == null) {
+        return res.status(400).json({
+            error: {
+                message: "Username, password or email was not provided",
+            },
+        })
+    }
+
     try {
-        const status = await createAccount(
-            req.body.username,
-            req.body.password,
-            req.body.email
-        )
+        const status = await createAccount(username, password, email)
 
         if (status.type == "error") {
             return res.status(409).json({ error: { message: status.message } })
@@ -134,8 +142,18 @@ router.post("/new", async (req, res, next) => {
 
 // GET ../users/activation/<activation_link>
 router.get("/activation/:activation_id", async (req, res, next) => {
+    const activation_id = req.params.activation_id
+
+    if (activation_id == null) {
+        return res.status(404).json({
+            error: {
+                message: "Activation was not provided",
+            },
+        })
+    }
+
     try {
-        const status = await activateAccount(req.params.activation_id)
+        const status = await activateAccount(activation_id)
         if (status.type == "error") {
             return res.status(404).json({ error: { message: status.message } })
         }

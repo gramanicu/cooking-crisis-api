@@ -192,7 +192,7 @@ export async function activateAccount(token) {
 }
 
 /**
- * Login a user into his account
+ * Login a user into his account. The account must be activated beforehand
  * @param {String} username The username of the user (IGN)
  * @param {String} password The password of the user
  * @returns The status of the "request" (json object, with a type="error"|"success"). If it was successful,
@@ -220,6 +220,13 @@ export async function verifySignIn(username, password) {
             .limit(1)
 
         if (userData.length) {
+            if (!userData[0].activated) {
+                return {
+                    type: "error",
+                    message: "Account was not activated",
+                }
+            }
+
             const correctPassword = await bcrypt.compare(
                 password,
                 userData[0].password
