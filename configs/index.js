@@ -37,6 +37,7 @@ let envConfig = load_config(_env)
 // The default values for any config
 let defaultConfig = {
     env: _env,
+    redis_url: process.env.REDIS_URL,
     mongoose_uri: process.env.MONGOOSE_URI,
     jwt_access_secret: process.env.JWT_ACCESS_SECRET,
     jwt_refresh_secret: process.env.JWT_REFRESH_SECRET,

@@ -9,19 +9,25 @@ import {
     refreshAccessToken,
 } from "../../../services/api/users"
 import { getUser as getUserMiddleware } from "../../../middleware/users"
+import { routeCacheMiddleware } from "../../../middleware/caching"
 import { jwt_access_expiry_time } from "../../../constants/utils"
 
 let router = Router()
 
 // GET ../users/exists/<username>
 // Check if the user with the <username> name exists
-router.get("/exists/:username", getUserMiddleware, async (req, res) => {
-    // We know the user exists (because the "getUserMiddleware"
-    // sends 404 message when the user doesn't exist)
-    return res.status(200).json({
-        exists: true,
-    })
-})
+router.get(
+    "/exists/:username",
+    routeCacheMiddleware,
+    getUserMiddleware,
+    async (req, res) => {
+        // We know the user exists (because the "getUserMiddleware"
+        // sends 404 message when the user doesn't exist)
+        return res.status(200).json({
+            exists: true,
+        })
+    }
+)
 
 // GET ../users/status/<username>
 // Check the status of the user with the <username> name
