@@ -5,7 +5,6 @@ import { addAsync } from "@awaitjs/express"
 import morgan from "morgan"
 import routes_init from "./routes"
 import mw_init from "./middleware"
-import cors_mw from "./middleware/cors"
 import cors from "./middleware/cors"
 
 export default class Server {
