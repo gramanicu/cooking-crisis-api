@@ -8,30 +8,32 @@ import {
     activateAccount,
     refreshAccessToken,
 } from "../../../services/api/users"
-import { getUser as getUserMiddleware } from "../../../middleware/users"
-import { routeCacheMiddleware } from "../../../middleware/caching"
-import { jwt_access_expiry_time } from "../../../constants/utils"
+import { getUser as getUserMid } from "../../../middleware/users"
+import {
+    routeCacheMiddleware as routeCache,
+    getValue as getCacheValue,
+    cacheValue as setCacheValue,
+} from "../../../middleware/caching"
+import {
+    jwt_access_expiry_time,
+    jwt_access_expiry_time_seconds,
+} from "../../../constants/utils"
 
 let router = Router()
 
 // GET ../users/exists/<username>
 // Check if the user with the <username> name exists
-router.get(
-    "/exists/:username",
-    routeCacheMiddleware,
-    getUserMiddleware,
-    async (req, res) => {
-        // We know the user exists (because the "getUserMiddleware"
-        // sends 404 message when the user doesn't exist)
-        return res.status(200).json({
-            exists: true,
-        })
-    }
-)
+router.get("/exists/:username", routeCache, getUserMid, async (req, res) => {
+    // We know the user exists (because the "getUserMiddleware"
+    // sends 404 message when the user doesn't exist)
+    return res.status(200).json({
+        exists: true,
+    })
+})
 
 // GET ../users/status/<username>
 // Check the status of the user with the <username> name
-router.get("/status/:username", getUserMiddleware, async (req, res) => {
+router.get("/status/:username", routeCache, getUserMid, async (req, res) => {
     // We know the user exists (because the "getUserMiddleware"
     // sends 404 message when the user doesn't exist)
     return res.status(200).json({
@@ -89,6 +91,18 @@ router.get("/token", async (req, res, next) => {
         })
     }
 
+    const cache_key = "token_cache-" + refresh_token
+    const curr_access_jwt = await getCacheValue(cache_key)
+    if (curr_access_jwt) {
+        // Return the existing access token
+        return res.status(200).json({
+            res_status: "success",
+            message: "The token was not refreshed as it was still new",
+            jwt_access_token: curr_access_jwt,
+            access_expiry: jwt_access_expiry_time,
+        })
+    }
+
     try {
         const status = await refreshAccessToken(refresh_token)
         if (status.type == "error") {
@@ -98,7 +112,17 @@ router.get("/token", async (req, res, next) => {
             })
         }
 
-        // The account creation succeeded
+        // Store the new token in the cache. The cache value
+        // will have the "half-life" of the token. This indirectly
+        // ensures that there can't be more than 2 access JWT at
+        // the same time
+        setCacheValue(
+            cache_key,
+            status.access_token,
+            jwt_access_expiry_time_seconds / 2
+        )
+
+        // Access token was refreshed
         return res.status(200).json({
             res_status: "success",
             message: status.message,

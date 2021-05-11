@@ -1,3 +1,9 @@
+/**
+ * This folder contains both the caching middleware and caching functions.
+ * By convention, every value of the cache will be prefixed with the
+ * "target table". If a value is part of the token cache, the key will
+ * have "token_cache-" prefix
+ */
 "use strict"
 
 import Redis from "ioredis"
@@ -5,7 +11,7 @@ import Redis from "ioredis"
 const redis = new Redis()
 
 export async function routeCacheMiddleware(req, res, next) {
-    const key = req.originalUrl || req.url
+    const key = "route_cache-" + (req.originalUrl || req.url)
     const val = await getJSON(key)
 
     if (val) {
@@ -16,7 +22,7 @@ export async function routeCacheMiddleware(req, res, next) {
         res.aux_send = res.send
         res.send = async (body) => {
             if (res.statusCode == 200 || res.statusCode == 201) {
-                await cacheJSON(key, body, 30)
+                await cacheJSON(key, body, 15)
             }
             res.aux_send(body)
         }

@@ -27,3 +27,4 @@ export const email_name = "CookingCrisis"
 
 export const jwt_access_expiry_time = "10m"
 export const jwt_refresh_expiry_time = "7d"
+export const jwt_access_expiry_time_seconds = 10 * 60
