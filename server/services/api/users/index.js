@@ -20,6 +20,39 @@ import jwt from "jsonwebtoken"
 import { user_status } from "../../../constants/users"
 
 /**
+ * Get a user based on his id
+ * @param {String} username The id of the account
+ * @returns The account data
+ */
+export async function getUserById(id) {
+    try {
+        const user = await userModel.findById(id)
+        return user._doc
+    } catch (err) {
+        throw new Error(err)
+    }
+}
+
+/**
+ * Get a user based on his id. This function is safe, as it filters
+ * data that doesn't need to be sent to the clients
+ * @param {String} username The id of the account
+ * @returns The account data
+ */
+export async function getUserByIdSafe(id) {
+    try {
+        const user = await userModel.findById(
+            id,
+            "-_id name email status elo created_at"
+        )
+
+        return user._doc
+    } catch (err) {
+        throw new Error(err)
+    }
+}
+
+/**
  * Get a user based on his IGN
  * @param {String} username The username of the account
  * @returns The account data
@@ -29,7 +62,7 @@ export async function getUserByName(username) {
         const query = await userModel.find({ name: username }).limit(1)
 
         if (query.length) {
-            return query[0]
+            return query[0]._doc
         } else {
             return null
         }
@@ -99,7 +132,7 @@ export async function createAccount(username, password, email) {
     try {
         const emailTypeExisting = await userModel.exists({
             email: email,
-            isAdmin: false,
+            is_admin: false,
         })
 
         if (emailTypeExisting) {
@@ -128,7 +161,7 @@ export async function createAccount(username, password, email) {
         throw new Error(err)
     }
 
-    // Set the other account data: isAdmin=false, ELO = starting_elo, status = offline
+    // Set the other account data: is_admin=false, ELO = starting_elo, status = offline
     const user = new userModel({
         name: username,
         lowercase_name: lc_name,
@@ -185,6 +218,58 @@ export async function activateAccount(token) {
                 type: "error",
                 message: "Token not found or expired",
             }
+        }
+    } catch (err) {
+        throw new Error(err)
+    }
+}
+
+/**
+ * Change the password of a user (based on his id)
+ * @param {String} id The id of the user
+ * @param {String} old_password The old password of the user
+ * @param {String} new_password The new password of the user
+ */
+export async function changePassword(id, old_password, new_password) {
+    const password_tester = new RegExp(passwordRegexp)
+
+    // Check if the provided passwords are valid
+    const old_password_valid = password_tester.test(old_password)
+    const new_password_valid = password_tester.test(new_password)
+
+    if (!old_password_valid || !new_password_valid) {
+        return {
+            type: "error",
+            message: "Invalid passwords",
+        }
+    }
+
+    try {
+        const userData = await userModel.findById(id)
+
+        if (userData) {
+            const correctPassword = await bcrypt.compare(
+                old_password,
+                userData.password
+            )
+
+            // If the old password is correct, replace it with the new password
+            if (correctPassword) {
+                const salt = await bcrypt.genSalt(salting_rounds)
+                const encryptedPwd = await bcrypt.hash(new_password, salt)
+                userData.password = encryptedPwd
+                await userData.save()
+
+                return {
+                    type: "success",
+                    message: "The password was updated",
+                }
+            }
+        }
+
+        return {
+            type: "error",
+            message: "Invalid data",
         }
     } catch (err) {
         throw new Error(err)
@@ -263,27 +348,32 @@ export async function verifySignIn(username, password) {
 
 /**
  * Signs the user out from his account.
- * @param {String} refreshToken The JWT refresh token.
+ * @param {String} refresh_token The JWT refresh token.
  */
-export async function signOutAccount(refreshToken) {
+export async function signOutAccount(refresh_token) {
     try {
-        // Get the user id from the refreshToken
-        const decoded_id = jwt.verify(refreshToken, config.jwt_refresh_secret)
+        // Get the user id from the refresh_token
+        var decoded_id
+        try {
+            decoded_id = jwt.verify(refresh_token, config.jwt_refresh_secret)
+        } catch (err) {
+            return {
+                type: "error",
+                message: "The provided data is not a valid JWT",
+            }
+        }
 
         // Check if the id is valid (the token actually had a valid id)
-        const userData = await userModel.findById(decoded_id).limit(1)
+        const userData = await userModel.findById(decoded_id._id)
 
-        if (userData.length) {
-            // Check if the refresh token is the one assigned to this user
-            if (refreshToken == userData[0].access_token) {
-                userData[0].refresh_token = undefined
-                userData[0].status = user_status.offline
-                await userData[0].save()
+        if (userData) {
+            userData.refresh_token = undefined
+            userData.status = user_status.offline
+            await userData.save()
 
-                return {
-                    type: "success",
-                    message: "User is signed out.",
-                }
+            return {
+                type: "success",
+                message: "User is signed out.",
             }
         }
 
@@ -298,22 +388,28 @@ export async function signOutAccount(refreshToken) {
 
 /**
  * Creates a new JWT access token for the user that has the specified refresh token.
- * @param {String} refreshToken The JWT refresh token.
+ * @param {String} refresh_token The JWT refresh token.
  */
-export async function refreshAccessToken(refreshToken) {
+export async function refreshAccessToken(refresh_token) {
     try {
-        // Get the user id from the refreshToken
-        const decoded_id = jwt.verify(refreshToken, config.jwt_refresh_secret)
+        // Get the user id from the refresh_token
+        var decoded_id
+        try {
+            decoded_id = jwt.verify(refresh_token, config.jwt_refresh_secret)
+        } catch (err) {
+            return {
+                type: "error",
+                message: "The provided data is not a valid JWT",
+            }
+        }
 
         // Check if the id is valid (the token actually had a valid id)
         const userData = await userModel.findById(decoded_id._id)
 
         if (userData) {
             // Check if the refresh token is the one assigned to this user
-            if (refreshToken == userData.refresh_token) {
-                const new_access_token = await generateAccessToken(
-                    userData.refresh_token
-                )
+            if (refresh_token == userData.refresh_token) {
+                const new_access_token = await generateAccessToken(userData._id)
 
                 return {
                     type: "success",

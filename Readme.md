@@ -82,7 +82,7 @@ The status field is defined in the `server/constants`, inside a "enum" (sort of,
     "password": String,
     "status": Number,
     "elo": Number,
-    "isAdmin": Boolean,
+    "is_admin": Boolean,
     "created_at": Date,
     "activated": Boolean,
 

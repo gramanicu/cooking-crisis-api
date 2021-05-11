@@ -1,5 +1,8 @@
 "use strict"
 
+import jwt_pkg from "jsonwebtoken"
+const { JsonWebTokenError } = jwt_pkg
+
 export default (err, req, res, next) => {
     res.status(err.status || 500)
 
@@ -12,15 +15,7 @@ export default (err, req, res, next) => {
         })
 
         console.error(err)
-    } else if (err.status && err.status != 404) {
-        res.json({
-            error: {
-                message: err.message,
-            },
-        })
-
-        console.error(err)
-    } else if (err.status == 404) {
+    } else if (err.status) {
         res.json({
             error: {
                 message: err.message,
