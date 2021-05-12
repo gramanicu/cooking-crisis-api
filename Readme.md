@@ -38,7 +38,7 @@ There is a special route, that returns this documentation, _"/docs"_. All the ot
 
 As defined in [#15](https://github.com/gramanicu/cooking-crisis-api/issues/15), these routes are related to the user accounts, but they don't expose private data (mostly because most of the routes are related to account creation anyway). The following routes are implemented:
 
-- **GET** `../users/exists/:username` - check if a user exists. His username (IGN) must be specified. The name is provided inside the path (`/:username`)
+- **GET `../users/exists/:username`** - check if a user exists. His username (IGN) must be specified. The name is provided inside the path (`/:username`)
 
   Response format:
 
@@ -52,7 +52,7 @@ As defined in [#15](https://github.com/gramanicu/cooking-crisis-api/issues/15), 
     }
   ```
 
-- **GET** `../users/status/:username` - check the status of a user. His username (IGN) must be specified. The status is returned as a number. See the `user_status` constant for more information.
+- **GET `../users/status/:username`** - check the status of a user. His username (IGN) must be specified. The status is returned as a number. See the `user_status` constant for more information.
 
   Response format:
 
@@ -66,7 +66,7 @@ As defined in [#15](https://github.com/gramanicu/cooking-crisis-api/issues/15), 
     }
   ```
 
-- **GET** `../users/activation/:activation_token` - activate an account, the one that has this specific `activation_token`. It expires in a specific amount of time (3 days, after that the account is deleted)
+- **GET `../users/activation/:activation_token`** - activate an account, the one that has this specific `activation_token`. It expires in a specific amount of time (3 days, after that the account is deleted)
 
   Response format:
 
@@ -77,7 +77,7 @@ As defined in [#15](https://github.com/gramanicu/cooking-crisis-api/issues/15), 
     }
   ```
 
-- **POST** `../users/new` - create a new "_player_" account. If successful, an activation link will be sent via email, available for 3 days. During this time, the account is **reserved**, but doesn't actually exist. The data must be sent in the request body in the following json format:
+- **POST `../users/new`** - create a new "_player_" account. If successful, an activation link will be sent via email, available for 3 days. During this time, the account is **reserved**, but doesn't actually exist. The data must be sent in the request body in the following json format:
 
   Request body:
 
@@ -112,7 +112,7 @@ As defined in [#15](https://github.com/gramanicu/cooking-crisis-api/issues/15), 
     }
   ```
 
-- **POST** `../users/signin` - sign in into an account (player or admin). For the login, only the IGN can be used. However, the sign in is case insensitive. The data must be sent in the request body in the following json format:
+- **POST `../users/signin`** - sign in into an account (player or admin). For the login, only the IGN can be used. However, the sign in is case insensitive. The data must be sent in the request body in the following json format:
 
   Request body:
 
@@ -145,7 +145,7 @@ As defined in [#15](https://github.com/gramanicu/cooking-crisis-api/issues/15), 
     }
   ```
 
-- **GET** `../users/token` - obtain a new `jwt_access_token`, only if the current one has spent more than 1/2 of it's "TTL". If the condition is not met, the current token is returned (not a new one).
+- **GET `../users/token`** - obtain a new `jwt_access_token`, only if the current one has spent more than 1/2 of it's "TTL". If the condition is not met, the current token is returned (not a new one).
 
   Request body:
 
@@ -177,7 +177,7 @@ As defined in [#15](https://github.com/gramanicu/cooking-crisis-api/issues/15), 
 
 These routes are related to the user accounts, and can be accessed only after obtaining the `jwt_access_token`. The token must be passed inside the _headers_, in the `Authorization` field, with the `Bearer` type ("Authorization" = "Bearer `<auth token>`").
 
-- **GET** `../users/account` - get the account data (only the data that is relevant to the user)
+- **GET `../users/account`** - get the account data (only the data that is relevant to the user)
 
   Response format:
 
@@ -208,7 +208,7 @@ These routes are related to the user accounts, and can be accessed only after ob
     }
   ```
 
-- **PATCH** `../users/password` - change the password of the authenticated user.
+- **PATCH `../users/password`** - change the password of the authenticated user.
 
   Request body:
 
@@ -234,7 +234,7 @@ These routes are related to the user accounts, and can be accessed only after ob
     }
   ```
 
-- **PATCH** `../users/signout` - signs out the authenticated user. It will change his status to offline and remove the `jwt_refresh_token`, among other things.
+- **PATCH `../users/signout`** - signs out the authenticated user. It will change his status to offline and remove the `jwt_refresh_token`, among other things.
 
   Request body:
 
