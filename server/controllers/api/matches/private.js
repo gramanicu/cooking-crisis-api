@@ -36,7 +36,7 @@ router.get("/view/:matchid", async (req, res) => {
 
 
 // // POST ../matches/new
-// // Initialize a new match
+// // Store a ended match
 // router.post("/new", async (req, res, next) => {
 //     // get data
 //     const player1_id = req.body.player1_id
