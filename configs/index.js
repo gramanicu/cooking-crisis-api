@@ -41,6 +41,10 @@ let defaultConfig = {
     mongoose_uri: process.env.MONGOOSE_URI,
     jwt_access_secret: process.env.JWT_ACCESS_SECRET,
     jwt_refresh_secret: process.env.JWT_REFRESH_SECRET,
+    verify_activated: true,
+    hostname: "http://localhost:3000",
+    port: process.env.PORT,
+    activation_address: "https://cooking-crisis-web-dev.herokuapp.com",
 }
 
 export default merge(defaultConfig, envConfig)
