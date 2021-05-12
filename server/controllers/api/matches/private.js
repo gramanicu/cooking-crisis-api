@@ -39,9 +39,10 @@ router.get("/view/:matchid", async (req, res) => {
 // // Initialize a new match
 // router.post("/new", async (req, res, next) => {
 //     // get data
-//     const username = req.body.username
-//     const password = req.body.password
-//     const email = req.body.email
+//     const player1_id = req.body.player1_id
+//     const player2_id = req.body.player2_id
+//     const is_winner_first = req.body.is_winner_first
+//     const chat_history = req.body.chat_history
 
 //     // data validation
 //     if (username == null || password == null || email == null) {

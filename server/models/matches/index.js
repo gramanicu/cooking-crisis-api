@@ -20,11 +20,11 @@ const matchesSchema = new Schema({
         ref: user_schema,
         required: true,
     },
-    isWinnerFirst: {
+    is_winner_first: {
         type: Number,
         required: false,
     },
-    chatHistory: {
+    chat_history: {
         type: Array,
         required: false,
     },

@@ -8,7 +8,7 @@ import matchModel from "../../../models/matches"
 
 /**
  * Get a match based on match id
- * @param {Number} id The id of the account
+ * @param {String} id The id of the account
  * @returns The match data
  */
 export async function getMatchById(id) {
