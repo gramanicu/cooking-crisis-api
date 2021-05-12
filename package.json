@@ -4,7 +4,6 @@
   "description": "The REST Api for the CookingCrisis App",
   "main": "app.js",
   "scripts": {
-    "preinstall": "./scripts/install_redis.sh",
     "start": "node --experimental-specifier-resolution=node app.js",
     "dev": "nodemon -L --experimental-specifier-resolution=node app.js"
   },
