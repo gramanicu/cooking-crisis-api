@@ -1,33 +1,30 @@
 "use strict"
 
-import jwt_pkg from "jsonwebtoken"
-const { JsonWebTokenError } = jwt_pkg
-
-export default (err, req, res, next) => {
+export default async function (err, req, res, next) {
     res.status(err.status || 500)
 
     if (err instanceof SyntaxError) {
-        res.status(400)
-        res.json({
+        console.error(err)
+        return res.status(400).json({
             error: {
+                req_status: "error",
                 message: "Bad request",
             },
         })
-
-        console.error(err)
     } else if (err.status) {
-        res.json({
+        return res.json({
             error: {
+                req_status: "error",
                 message: err.message,
             },
         })
     } else {
-        res.json({
+        console.error(err)
+        return res.json({
             error: {
+                req_status: "error",
                 message: "Internal server error",
             },
         })
-
-        console.error(err)
     }
 }

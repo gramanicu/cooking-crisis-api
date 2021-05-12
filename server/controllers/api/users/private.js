@@ -23,11 +23,16 @@ router.get("/account", authJWT, async (req, res, next) => {
         const account_data = await getCacheJson(cache_key)
         if (account_data) {
             // Return the existing access token
+            account_data.res_status = "success"
+            account_data.message = "Returned the user account data"
             return res.status(200).json(account_data)
         }
 
         const user = await getUserByIdSafe(req.user_id)
         setCacheJson(cache_key, user)
+
+        user.res_status = "success"
+        user.message = "Returned the user account data"
         return res.status(200).json(user)
     } catch (err) {
         next(err)

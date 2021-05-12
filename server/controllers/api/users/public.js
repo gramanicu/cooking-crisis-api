@@ -14,10 +14,7 @@ import {
     getValue as getCacheValue,
     cacheValue as setCacheValue,
 } from "../../../middleware/caching"
-import {
-    jwt_access_expiry_time,
-    jwt_access_expiry_time_seconds,
-} from "../../../constants/utils"
+import { jwt_access_expiry_time_seconds } from "../../../constants/utils"
 
 let router = Router()
 
@@ -27,7 +24,8 @@ router.get("/exists/:username", routeCache, getUserMid, async (req, res) => {
     // We know the user exists (because the "getUserMiddleware"
     // sends 404 message when the user doesn't exist)
     return res.status(200).json({
-        exists: true,
+        res_status: "success",
+        message: "Found user",
     })
 })
 
@@ -37,7 +35,9 @@ router.get("/status/:username", routeCache, getUserMid, async (req, res) => {
     // We know the user exists (because the "getUserMiddleware"
     // sends 404 message when the user doesn't exist)
     return res.status(200).json({
-        res_status: req.user.status,
+        res_status: "success",
+        message: "Found user",
+        status: req.user.status,
     })
 })
 
@@ -59,13 +59,21 @@ router.post("/signin", async (req, res, next) => {
     try {
         const status = await verifySignIn(username, password)
 
+        // Store the created access token in the cache
+        const cache_key = "token_cache-" + status.refresh_token
+        setCacheValue(
+            cache_key,
+            status.access_token,
+            jwt_access_expiry_time_seconds / 2
+        )
+
         if (status.type == "success") {
             return res.status(200).json({
                 res_status: "success",
                 message: status.message,
                 jwt_access_token: status.access_token,
                 jwt_refresh_token: status.refresh_token,
-                access_expiry: jwt_access_expiry_time,
+                access_expiry: jwt_access_expiry_time_seconds,
             })
         } else {
             return res.status(401).json({
@@ -99,7 +107,7 @@ router.get("/token", async (req, res, next) => {
             res_status: "success",
             message: "The token was not refreshed as it was still new",
             jwt_access_token: curr_access_jwt,
-            access_expiry: jwt_access_expiry_time,
+            access_expiry: jwt_access_expiry_time_seconds,
         })
     }
 
@@ -127,7 +135,7 @@ router.get("/token", async (req, res, next) => {
             res_status: "success",
             message: status.message,
             jwt_access_token: status.access_token,
-            access_expiry: jwt_access_expiry_time,
+            access_expiry: jwt_access_expiry_time_seconds,
         })
     } catch (err) {
         next(err)

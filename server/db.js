@@ -16,7 +16,6 @@ const connectDB = async (mongoose_uri) => {
 
     // Handle error (after connection is established)
     mongoose.connection.on("error", (err) => {
-        // TODO - check if a middleware should be used or something else
         console.log(err)
     })
 
