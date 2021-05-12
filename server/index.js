@@ -4,8 +4,10 @@ import express, { json, urlencoded } from "express"
 import { addAsync } from "@awaitjs/express"
 import morgan from "morgan"
 import routes_init from "./routes"
-import mw_init from "./middleware"
-import cors from "./middleware/cors"
+import cors_mw from "./middleware/cors"
+import error_mw from "./middleware/errors"
+import compression from "compression"
+import helmet from "helmet"
 
 export default class Server {
     constructor(config) {
@@ -24,17 +26,21 @@ export default class Server {
         this.server.set("hostname", config.hostname)
 
         // Middleware init
+        this.server.use(compression())
         this.server.use(json())
         this.server.use(urlencoded({ extended: true }))
+        this.server.use(helmet())
 
         this.server.use(morgan("dev"))
-        this.server.use(cors)
+
+        // Initialize cors middleware
+        this.server.use(cors_mw)
 
         // Initialize routes
         routes_init(this.server)
 
-        // Initialize custom middleware
-        mw_init(this.server)
+        // Initialize error handling middleware
+        this.server.use(error_mw)
     }
 
     start = () => {

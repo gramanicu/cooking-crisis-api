@@ -1,6 +1,6 @@
 "use strict"
 
-export default (req, res, next) => {
+export default async function (req, res, next) {
     res.header("Access-Control-Allow-Origin", "*")
     res.header(
         "Access-Control-Allow-Headers",

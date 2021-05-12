@@ -4,10 +4,10 @@
 // NOTE - the admin accounts are added manually
 
 import {
-    passwordRegexp,
-    emailRegexp,
+    password_regexp,
+    email_regexp,
     salting_rounds,
-    usernameRegexp,
+    username_regexp,
     jwt_access_expiry_time,
     jwt_refresh_expiry_time,
 } from "../../../constants/utils"
@@ -82,13 +82,13 @@ export async function getUserByName(username) {
 export async function createAccount(username, password, email) {
     // The username of a user must be unique, no matter the account. However, someone can
     // have multiple accounts on the same email, but with different roles (player & admin)
-    const passwordTester = new RegExp(passwordRegexp)
-    const emailTester = new RegExp(emailRegexp)
-    const usernameTester = new RegExp(usernameRegexp)
+    const password_tester = new RegExp(password_regexp)
+    const email_tester = new RegExp(email_regexp)
+    const username_tester = new RegExp(username_regexp)
     const lc_name = username.toLowerCase()
 
     // Check username
-    const usernameValid = usernameTester.test(username)
+    const usernameValid = username_tester.test(username)
     if (!usernameValid) {
         return {
             type: "error",
@@ -96,10 +96,10 @@ export async function createAccount(username, password, email) {
         }
     }
     try {
-        const usernameExisting = await userModel.exists({
+        const username_existing = await userModel.exists({
             lowercase_name: lc_name,
         })
-        if (usernameExisting) {
+        if (username_existing) {
             return {
                 type: "error",
                 message: "Username in use",
@@ -110,8 +110,8 @@ export async function createAccount(username, password, email) {
     }
 
     // Check password
-    const passwordValid = passwordTester.test(password)
-    if (!passwordValid) {
+    const password_valid = password_tester.test(password)
+    if (!password_valid) {
         return {
             type: "error",
             message:
@@ -120,8 +120,8 @@ export async function createAccount(username, password, email) {
     }
 
     // Check that the email is a valid email
-    const emailValid = emailTester.test(email)
-    if (!emailValid) {
+    const email_valid = email_tester.test(email)
+    if (!email_valid) {
         return {
             type: "error",
             message: "The email is invalid",
@@ -130,12 +130,12 @@ export async function createAccount(username, password, email) {
 
     // Check that there is no other user with the same email that is a player
     try {
-        const emailTypeExisting = await userModel.exists({
+        const email_type_existing = await userModel.exists({
             email: email,
             is_admin: false,
         })
 
-        if (emailTypeExisting) {
+        if (email_type_existing) {
             return {
                 type: "error",
                 message: "Another account is linked to the email address",
@@ -147,7 +147,7 @@ export async function createAccount(username, password, email) {
 
     // Encrypt password
     const salt = await bcrypt.genSalt(salting_rounds)
-    const encryptedPwd = await bcrypt.hash(password, salt)
+    const encrypted_pwd = await bcrypt.hash(password, salt)
 
     // Create verification link
     const activation_token = crypto.randomBytes(32).toString("hex")
@@ -166,7 +166,7 @@ export async function createAccount(username, password, email) {
         name: username,
         lowercase_name: lc_name,
         email: email,
-        password: encryptedPwd,
+        password: encrypted_pwd,
         activation_token: activation_token,
     })
 
@@ -231,7 +231,7 @@ export async function activateAccount(token) {
  * @param {String} new_password The new password of the user
  */
 export async function changePassword(id, old_password, new_password) {
-    const password_tester = new RegExp(passwordRegexp)
+    const password_tester = new RegExp(password_regexp)
 
     // Check if the provided passwords are valid
     const old_password_valid = password_tester.test(old_password)
@@ -284,8 +284,8 @@ export async function changePassword(id, old_password, new_password) {
  * will also return a JWT
  */
 export async function verifySignIn(username, password) {
-    const passwordTester = new RegExp(passwordRegexp)
-    const usernameTester = new RegExp(usernameRegexp)
+    const passwordTester = new RegExp(password_regexp)
+    const usernameTester = new RegExp(username_regexp)
     const lc_name = username.toLowerCase()
 
     // Check if the provided account could be an IGN and the provided password is valid
