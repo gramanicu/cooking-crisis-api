@@ -118,3 +118,4 @@ dist
 *.cert
 *.key
 .DS_Store
+.helpers
