@@ -10,7 +10,7 @@ import Redis from "ioredis"
 import { cache_default_ttl } from "../constants/utils"
 import config from "../../configs"
 
-var redis
+let redis
 if (config.redis_url) {
     redis = new Redis(config.redis_url)
 } else {
@@ -113,4 +113,12 @@ export async function removeKey(key) {
     } catch (err) {
         throw new Error(err)
     }
+}
+
+/**
+ * Close the connection to the redis db
+ */
+export async function disconnectRedis() {
+    await redis.disconnect()
+    console.log("Redis Cache disconnected...")
 }

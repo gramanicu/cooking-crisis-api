@@ -115,5 +115,7 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
-
+*.cert
+*.key
 .DS_Store
+.helpers

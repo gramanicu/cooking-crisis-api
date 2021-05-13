@@ -353,7 +353,7 @@ export async function verifySignIn(username, password) {
 export async function signOutAccount(refresh_token) {
     try {
         // Get the user id from the refresh_token
-        var decoded_id
+        let decoded_id
         try {
             decoded_id = jwt.verify(refresh_token, config.jwt_refresh_secret)
         } catch (err) {
@@ -393,7 +393,7 @@ export async function signOutAccount(refresh_token) {
 export async function refreshAccessToken(refresh_token) {
     try {
         // Get the user id from the refresh_token
-        var decoded_id
+        let decoded_id
         try {
             decoded_id = jwt.verify(refresh_token, config.jwt_refresh_secret)
         } catch (err) {

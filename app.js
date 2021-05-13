@@ -12,6 +12,6 @@ db(config.mongoose_uri)
         sv.start()
     })
     .catch((err) => {
-        console.error("Error encountered, server will close")
+        console.error("Error " + err + " encountered, server will close")
         process.exit()
     })

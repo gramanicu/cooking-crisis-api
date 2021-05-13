@@ -35,4 +35,16 @@ const connectDB = async (mongoose_uri) => {
     )
 }
 
+/**
+ * Disconnect the database
+ */
+export async function disconnectDB() {
+    try {
+        await mongoose.connection.close(false)
+        console.log("Disconnected from the database")
+    } catch (err) {
+        throw new Error(err)
+    }
+}
+
 export default connectDB
