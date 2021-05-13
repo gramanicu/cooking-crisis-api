@@ -8,6 +8,9 @@ import cors_mw from "./middleware/cors"
 import error_mw from "./middleware/errors"
 import compression from "compression"
 import helmet from "helmet"
+import http from "http"
+import { disconnectDB } from "./db"
+import { disconnectRedis } from "./middleware/caching.js"
 
 export default class Server {
     constructor(config) {
@@ -43,11 +46,22 @@ export default class Server {
         this.server.use(error_mw)
     }
 
+    shutdown_sv = async () => {
+        console.log("")
+        await disconnectDB()
+        await disconnectRedis()
+        this.http_sv.close(() => {
+            console.log("Shutting down...")
+            process.exit()
+        })
+    }
+
     start = () => {
         let hostname = this.server.get("hostname")
         let port = this.server.get("port")
 
-        this.server
+        this.http_sv = http
+            .createServer(this.server)
             .listen(port, () => {
                 console.log("Express server started on: " + hostname)
             })
@@ -57,8 +71,14 @@ export default class Server {
                     e.name + " occurred during express init: ",
                     e.message
                 )
-                process.exit()
+
+                this.shutdown_sv()
             })
+
+        process.on("SIGTERM", this.shutdown_sv)
+        process.on("SIGINT", this.shutdown_sv)
+        process.on("uncaughtException", this.shutdown_sv)
+        process.on("unhandledRejection", this.shutdown_sv)
     }
 
     get expressServer() {
