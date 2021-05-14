@@ -145,16 +145,7 @@ As defined in [#15](https://github.com/gramanicu/cooking-crisis-api/issues/15), 
     }
   ```
 
-- **GET `../users/token`** - obtain a new `jwt_access_token`, only if the current one has spent more than 1/2 of it's "TTL". If the condition is not met, the current token is returned (not a new one).
-
-  Request body:
-
-  ```js
-    {
-      // The `jwt_refresh_token`
-      "refresh_token": String
-    }
-  ```
+- **GET `../users/token/:refresh_token`** - obtain a new `jwt_access_token`, only if the current one has spent more than 1/2 of it's "TTL". If the condition is not met, the current token is returned (not a new one). The refresh_token is provided inside the path (`/:refresh_token`)
 
   Response format:
 

@@ -87,10 +87,10 @@ router.post("/signin", async (req, res, next) => {
     }
 })
 
-// GET ../users/token
+// GET ../users/token/<refresh_token>
 // Creates a new access token based on the access token
-router.get("/token", async (req, res, next) => {
-    const refresh_token = req.body.refresh_token
+router.get("/token/:refresh_token", async (req, res, next) => {
+    const refresh_token = req.params.refresh_token
 
     if (refresh_token == null) {
         return res.status(401).json({
