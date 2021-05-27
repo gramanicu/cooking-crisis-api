@@ -1,7 +1,7 @@
 import { io } from "socket.io-client"
 
 const authJWT =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MDllZGJlODBiMzlhZjAwMTVkMWM0NDAiLCJpYXQiOjE2MjIxMzM3MzUsImV4cCI6MTYyMjEzNDMzNX0.oVQfpU6qMs1jjRZOy7wh5jupYbXZlHLCyjyDxlG1vns"
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MDllZGJlODBiMzlhZjAwMTVkMWM0NDAiLCJpYXQiOjE2MjIxMzgwMzEsImV4cCI6MTYyMjEzODYzMX0.BpusAqahTstAJF_QB-g5bqjoqNliXsqqpg1YRayuudM"
 
 const backbone = io("http://localhost:3000/backbone", {
     path: "/sockets/",
@@ -10,9 +10,13 @@ const backbone = io("http://localhost:3000/backbone", {
     },
 })
 
-backbone.on("connect", function (socket) {
+backbone.on("connect", () => {
     console.log("Connected!")
-    socket.emit("ping")
+    backbone.emit("ping", Date.now())
+})
+
+backbone.on("pong", (time) => {
+    console.log("Delay is " + (Date.now() - time) + "ms")
 })
 
 backbone.on("connect_error", (err) => {

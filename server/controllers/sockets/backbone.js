@@ -7,7 +7,8 @@ export default function (io) {
 
     io.on("connection", (socket) => {
         console.log("User " + socket.user_id + " connected to the backbone")
+        socket.on("ping", (time) => {
+            socket.emit("pong", time)
+        })
     })
-
-    io.on("ping", (socket) => {})
 }
