@@ -1,9 +1,9 @@
 import { io } from "socket.io-client"
 
 const authJWT =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MDllZGJlODBiMzlhZjAwMTVkMWM0NDAiLCJpYXQiOjE2MjIxMzgwMzEsImV4cCI6MTYyMjEzODYzMX0.BpusAqahTstAJF_QB-g5bqjoqNliXsqqpg1YRayuudM"
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MDllZGJlODBiMzlhZjAwMTVkMWM0NDAiLCJpYXQiOjE2MjIxMzk2NDAsImV4cCI6MTYyMjE0MDI0MH0.TSzAMqPeU-7GMRVss72jdAOBIpkpWG99Vm-R30L2o8c"
 
-const backbone = io("http://localhost:3000/backbone", {
+const backbone = io("https://cooking-crisis-api-dev.herokuapp.com/backbone", {
     path: "/sockets/",
     auth: {
         token: authJWT,
