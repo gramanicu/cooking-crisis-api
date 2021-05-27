@@ -11,10 +11,25 @@ import { cache_default_ttl } from "../constants/utils"
 import config from "../../configs"
 
 let redis
-if (config.redis_url) {
-    redis = new Redis(config.redis_url)
-} else {
-    redis = new Redis()
+
+export async function connectRedis() {
+    if (redis === undefined) {
+        try {
+            if (config.redis_url) {
+                redis = new Redis(config.redis_url, {
+                    lazyConnect: true,
+                })
+            } else {
+                redis = new Redis({
+                    lazyConnect: true,
+                })
+            }
+
+            await redis.connect()
+        } catch (err) {
+            throw new Error(err)
+        }
+    }
 }
 
 export async function routeCacheMiddleware(req, res, next) {
@@ -119,6 +134,10 @@ export async function removeKey(key) {
  * Close the connection to the redis db
  */
 export async function disconnectRedis() {
-    await redis.disconnect()
-    console.log("Redis Cache disconnected...")
+    try {
+        await redis.disconnect()
+        console.log("Redis Cache disconnected...")
+    } catch (err) {
+        throw new Error(err)
+    }
 }
