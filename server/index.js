@@ -9,9 +9,9 @@ import error_mw from "./middleware/errors"
 import compression from "compression"
 import helmet from "helmet"
 import http from "http"
+import { init as socket_init } from "./sockets"
 import { disconnectDB } from "./db"
-import { disconnectRedis } from "./middleware/caching.js"
-
+import { connectRedis, disconnectRedis } from "./middleware/caching"
 export default class Server {
     constructor(config) {
         // Singleton
@@ -56,14 +56,23 @@ export default class Server {
         })
     }
 
-    start = () => {
+    start = async () => {
         let hostname = this.server.get("hostname")
         let port = this.server.get("port")
 
-        this.http_sv = http
-            .createServer(this.server)
+        this.http_sv = http.createServer(this.server)
+
+        this.http_sv
             .listen(port, () => {
                 console.log("Express server started on: " + hostname)
+                socket_init(this.http_sv)
+
+                try {
+                    connectRedis()
+                } catch (err) {
+                    console.error("Error during Redis initialization")
+                    this.shutdown_sv()
+                }
             })
             .on("error", (e) => {
                 // Print message to stderr and stop the server

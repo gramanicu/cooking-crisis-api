@@ -119,3 +119,4 @@ dist
 *.key
 .DS_Store
 .helpers
+.vscode
