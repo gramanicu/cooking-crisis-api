@@ -35,11 +35,13 @@ export async function authJWT(req, res, next) {
         err.status = 401
         next(err)
     } else {
+        console.log(authHeader)
         try {
             const user = jwt.verify(token, config.jwt_access_secret)
             req.user_id = user._id
             next()
         } catch (err) {
+            console.error(err);
             err = new Error("The provided token is not valid")
             err.status = 401
             next(err)
