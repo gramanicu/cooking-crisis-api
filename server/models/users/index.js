@@ -3,6 +3,7 @@
 import pkg from "mongoose"
 const { Schema, model } = pkg
 import {
+    friends_collection,
     user_collection,
     user_schema,
     user_status,
@@ -82,7 +83,7 @@ const userSchema = new Schema({
     friends: [
         {
             type: Schema.Types.ObjectId,
-            ref: "Friends",
+            ref: friends_collection,
         },
     ],
 })
