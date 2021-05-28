@@ -78,6 +78,13 @@ const userSchema = new Schema({
         required: false,
         default: () => new Date(+new Date() + activation_expiry_time),
     },
+
+    friends: [
+        {
+            type: Schema.Types.ObjectId,
+            ref: "Friends",
+        },
+    ],
 })
 
 export default model(user_schema, userSchema, user_collection)

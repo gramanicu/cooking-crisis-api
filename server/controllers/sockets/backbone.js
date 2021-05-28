@@ -6,7 +6,10 @@ export default function (io) {
     io.use(authSocketJWT)
 
     io.on("connection", (socket) => {
-        console.log("User " + socket.user_id + " connected to the backbone")
+        // Create a link to the client, to be able to send direct messages
+        socket.join(socket.user_id)
+
+        // The answer to a ping (pong). Used by the client to measure delay
         socket.on("ping", (time) => {
             socket.emit("pong", time)
         })
