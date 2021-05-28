@@ -12,9 +12,8 @@ export const user_status = Object.freeze({
 
 export const friends_status = Object.freeze({
     undefined: 0,
-    requested: 1, // This user has requested friendship
-    pending: 2, // The other user has requested friendship
-    friends: 3,
+    pending: 1,
+    friends: 2,
 })
 
 export const user_schema = "user"

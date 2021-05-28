@@ -2,6 +2,7 @@ import { Router } from "express"
 import * as friends_service from "../../../services/api/users/friends"
 import { authJWT } from "../../../middleware/users"
 import { getUser as getUserMid } from "../../../middleware/users"
+import { getUserByIdSafe, getUserByName } from "../../../services/api/users"
 
 let router = Router()
 
@@ -59,6 +60,18 @@ router.get("/requests", authJWT, async (req, res, next) => {
 
         if (ret.type != "error") {
             res.status(200)
+
+            const arr = await Promise.all(
+                ret.data.map(async (item) => {
+                    const user = await getUserByIdSafe(item.requester)
+                    return {
+                        sender: user.name,
+                        req_id: item._id,
+                    }
+                })
+            )
+
+            ret.data = arr
         } else {
             res.status(400)
         }
@@ -73,7 +86,7 @@ router.get("/requests", authJWT, async (req, res, next) => {
 // Get all the friends of this user
 router.get("/list", authJWT, async (req, res, next) => {
     try {
-        const ret = await friends_service.getRequests(req.user_id)
+        const ret = await friends_service.getFriendList(req.user_id)
 
         if (ret.type != "error") {
             res.status(200)
@@ -87,30 +100,22 @@ router.get("/list", authJWT, async (req, res, next) => {
     }
 })
 
-// DELETE ../friends/remove/:username
-// Remove a friend of the user
-router.delete(
-    "/remove/:username",
-    authJWT,
-    getUserMid,
-    async (req, res, next) => {
-        try {
-            const ret = await friends_service.removeFriend(
-                String(req.user_id),
-                String(req.user._id)
-            )
+// DELETE ../friends/remove/:link_id
+// Remove a friend of the user, using the link_id as a indication (same as the request id)
+router.delete("/remove/:link_id", authJWT, async (req, res, next) => {
+    try {
+        const ret = await friends_service.removeFriend(req.params.link_id)
 
-            if (ret.type != "error") {
-                res.status(201)
-            } else {
-                res.status(400)
-            }
-
-            return res.json(ret)
-        } catch (err) {
-            next(err)
+        if (ret.type != "error") {
+            res.status(201)
+        } else {
+            res.status(400)
         }
+
+        return res.json(ret)
+    } catch (err) {
+        next(err)
     }
-)
+})
 
 export default router

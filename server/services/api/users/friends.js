@@ -2,12 +2,14 @@
 
 import userModel from "../../../models/users"
 import friendsModel from "../../../models/users/friends"
-import { friends_schema, friends_status } from "../../../constants/users"
+import { friends_collection, friends_status } from "../../../constants/users"
+import mongoose from "mongoose"
+import { getUserByIdSafe } from "./index"
 
 /**
  * Update (and create, if specified) a friend connection between two users
- * @param {String} snd_id The requester id
- * @param {String} rec_id The receiver id
+ * @param {mongoose.ObjectId} snd_id The requester id
+ * @param {mongoose.ObjectId} rec_id The receiver id
  * @param {Number} friend_status The "friend_status" of the connection
  * @param {Boolean} create If the friend connection should be created if it doesn't exist
  */
@@ -49,6 +51,16 @@ async function updateFriends(snd_id, rec_id, friend_status, create = false) {
  * @param {String} rec_id The id of the request recipient
  */
 export async function sendRequest(snd_id, rec_id) {
+    if (
+        !mongoose.isValidObjectId(snd_id) ||
+        !mongoose.isValidObjectId(rec_id)
+    ) {
+        return {
+            type: "error",
+            message: "Invalid id's",
+        }
+    }
+
     if (snd_id == rec_id) {
         return {
             type: "error",
@@ -56,10 +68,12 @@ export async function sendRequest(snd_id, rec_id) {
         }
     }
     try {
-        const [snd, rec] = await Promise.all([
-            updateFriends(snd_id, rec_id, friends_status.requested, true),
-            updateFriends(rec_id, snd_id, friends_status.pending, true),
-        ])
+        const req = await updateFriends(
+            snd_id,
+            rec_id,
+            friends_status.pending,
+            true
+        )
 
         await Promise.all([
             userModel.findOneAndUpdate(
@@ -67,8 +81,8 @@ export async function sendRequest(snd_id, rec_id) {
                     _id: snd_id,
                 },
                 {
-                    $push: {
-                        friends: snd._id,
+                    $addToSet: {
+                        friends: req._id,
                     },
                 }
             ),
@@ -77,8 +91,8 @@ export async function sendRequest(snd_id, rec_id) {
                     _id: rec_id,
                 },
                 {
-                    $push: {
-                        friends: rec._id,
+                    $addToSet: {
+                        friends: req._id,
                     },
                 }
             ),
@@ -93,7 +107,18 @@ export async function sendRequest(snd_id, rec_id) {
     }
 }
 
+/**
+ * Respond to a friend request
+ * @param {String} req_id The id of the request that will be answered
+ * @param {String} answer If the request is accepted or denied
+ */
 export async function respondRequest(req_id, answer) {
+    if (!mongoose.isValidObjectId(req_id)) {
+        return {
+            type: "error",
+            message: "Invalid id",
+        }
+    }
     try {
         const request = await friendsModel.findById(req_id)
 
@@ -107,10 +132,7 @@ export async function respondRequest(req_id, answer) {
         const user_a = request.requester
         const user_b = request.recipient
         if (answer == "accept") {
-            await Promise.all([
-                updateFriends(user_a, user_b, friends_status.friends, false),
-                updateFriends(user_b, user_a, friends_status.friends, false),
-            ])
+            await updateFriends(user_a, user_b, friends_status.friends, false)
 
             // TODO - notify the sender
 
@@ -120,16 +142,7 @@ export async function respondRequest(req_id, answer) {
             }
         } else {
             // "deny" response
-            const [snd, rec] = await Promise.all([
-                friendsModel.findOneAndRemove({
-                    requester: user_a,
-                    recipient: user_b,
-                }),
-                friendsModel.findOneAndRemove({
-                    requester: user_b,
-                    recipient: user_a,
-                }),
-            ])
+            const req = await friendsModel.findByIdAndRemove(req_id)
 
             await Promise.all([
                 userModel.findOneAndUpdate(
@@ -138,7 +151,7 @@ export async function respondRequest(req_id, answer) {
                     },
                     {
                         $pull: {
-                            friends: snd._id,
+                            friends: req._id,
                         },
                     }
                 ),
@@ -148,7 +161,7 @@ export async function respondRequest(req_id, answer) {
                     },
                     {
                         $pull: {
-                            friends: rec._id,
+                            friends: req._id,
                         },
                     }
                 ),
@@ -166,69 +179,136 @@ export async function respondRequest(req_id, answer) {
     }
 }
 
+/**
+ * Get the list of the friend requests
+ * @param {String} user_id The user_id of the user that requested his pending friend requests (the ones he received)
+ */
 export async function getRequests(user_id) {
+    if (!mongoose.isValidObjectId(user_id)) {
+        return {
+            type: "error",
+            message: "Invalid id",
+        }
+    }
     try {
-        const docs = await userModel
-            .find({
+        const doc = await userModel
+            .findOne({
                 _id: user_id,
             })
             .populate({
-                path: friends_schema,
+                path: friends_collection,
                 match: { status: friends_status.pending },
             })
 
-        console.log(docs)
+        if (!doc.friends.length) {
+            return {
+                type: "success",
+                message: "No requests for this user",
+                data: [],
+            }
+        }
+        const friends = doc.friends
+
+        return {
+            type: "success",
+            message: "Returned the requests for this user",
+            data: friends,
+        }
     } catch (err) {
         throw new Error(err)
     }
 }
 
+/**
+ * Get the friend list for a user (friend IGN and link_id)
+ * @param {String} user_id The user id of the user which requested his friend list
+ */
 export async function getFriendList(user_id) {
+    if (!mongoose.isValidObjectId(user_id)) {
+        return {
+            type: "error",
+            message: "Invalid id",
+        }
+    }
     try {
-        const docs = await userModel.find({
-            _id: user_id,
-            friends: {
-                status: friends_status.friends,
-            },
-        })
+        const doc = await userModel
+            .findOne({
+                _id: user_id,
+            })
+            .populate({
+                path: friends_collection,
+                match: { status: friends_status.friends },
+            })
 
-        console.log(docs)
+        if (!doc.friends.length) {
+            return {
+                type: "success",
+                message: "No friends for this user",
+                data: [],
+            }
+        }
+        const friends = doc.friends
+
+        const arr = await Promise.all(
+            friends.map(async (item) => {
+                const user = await getUserByIdSafe(item.requester)
+                return {
+                    name: user.name,
+                    link_id: item._id,
+                }
+            })
+        )
+
+        return {
+            type: "success",
+            message: "Returned the friend list for this user",
+            data: arr,
+        }
     } catch (err) {
         throw new Error(err)
     }
 }
 
-export async function removeFriend(user_id, friend_id) {
+/**
+ * Remove a friend of a user. Will also remove any pending requests
+ * @param {String} link_id The link id of the friendship relationship
+ */
+export async function removeFriend(link_id) {
+    if (!mongoose.isValidObjectId(link_id)) {
+        return {
+            type: "error",
+            message: "Invalid id",
+        }
+    }
     try {
-        const [snd, rec] = await Promise.all([
-            friendsModel.findOneAndRemove({
-                requester: user_id,
-                recipient: friend_id,
-            }),
-            friendsModel.findOneAndRemove({
-                requester: friend_id,
-                recipient: user_id,
-            }),
-        ])
+        console.log(link_id)
+        const doc = await friendsModel.findByIdAndRemove(link_id)
+
+        if (doc == null) {
+            return {
+                type: "error",
+                message: "Friend relationship does not exist",
+            }
+        }
 
         await Promise.all([
             userModel.findOneAndUpdate(
                 {
-                    _id: user_id,
+                    _id: doc.requester,
                 },
                 {
                     $pull: {
-                        friends: snd._id,
+                        friends: doc._id,
                     },
                 }
             ),
             userModel.findOneAndUpdate(
                 {
-                    _id: friend_id,
+                    _id: doc.recipient,
                 },
                 {
                     $pull: {
-                        friends: rec._id,
+                        friends: doc._id,
                     },
                 }
             ),
