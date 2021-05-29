@@ -34,15 +34,35 @@ export async function authJWT(req, res, next) {
         let err = new Error("Auth JWT was not provided")
         err.status = 401
         next(err)
+    } else {
+        try {
+            const user = jwt.verify(token, config.jwt_access_secret)
+            req.user_id = user._id
+            next()
+        } catch (err) {
+            console.error(err);
+            console.log(token);
+            err = new Error("The provided token is not valid")
+            err.status = 401
+            next(err)
+        }
     }
+}
 
-    try {
-        const user = jwt.verify(token, config.jwt_access_secret)
-        req.user_id = user._id
-        next()
-    } catch (err) {
-        err = new Error("The provided token is not valid")
-        err.status = 401
+export async function authSocketJWT(socket, next) {
+    const token = socket.handshake.auth.token
+
+    if (token == null) {
+        let err = new Error("Auth JWT was not provided")
         next(err)
+    } else {
+        try {
+            const user = jwt.verify(token, config.jwt_access_secret)
+            socket.user_id = user._id
+            next()
+        } catch (err) {
+            err = new Error("The provided token is not valid")
+            next(err)
+        }
     }
 }

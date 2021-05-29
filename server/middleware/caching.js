@@ -10,11 +10,26 @@ import Redis from "ioredis"
 import { cache_default_ttl } from "../constants/utils"
 import config from "../../configs"
 
-var redis
-if (config.redis_url) {
-    redis = new Redis(config.redis_url)
-} else {
-    redis = new Redis()
+let redis
+
+export async function connectRedis() {
+    if (redis === undefined) {
+        try {
+            if (config.redis_url) {
+                redis = new Redis(config.redis_url, {
+                    lazyConnect: true,
+                })
+            } else {
+                redis = new Redis({
+                    lazyConnect: true,
+                })
+            }
+
+            await redis.connect()
+        } catch (err) {
+            throw new Error(err)
+        }
+    }
 }
 
 export async function routeCacheMiddleware(req, res, next) {
@@ -110,6 +125,18 @@ export async function cacheJSON(key, json, ttl = cache_default_ttl) {
 export async function removeKey(key) {
     try {
         await redis.del(key)
+    } catch (err) {
+        throw new Error(err)
+    }
+}
+
+/**
+ * Close the connection to the redis db
+ */
+export async function disconnectRedis() {
+    try {
+        await redis.disconnect()
+        console.log("Redis Cache disconnected...")
     } catch (err) {
         throw new Error(err)
     }

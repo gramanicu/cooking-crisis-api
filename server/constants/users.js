@@ -10,5 +10,13 @@ export const user_status = Object.freeze({
     playing: 4,
 })
 
+export const friends_status = Object.freeze({
+    undefined: 0,
+    pending: 1,
+    friends: 2,
+})
+
 export const user_schema = "user"
 export const user_collection = "users"
+export const friends_schema = "friend"
+export const friends_collection = "friends"

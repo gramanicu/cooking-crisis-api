@@ -3,6 +3,8 @@
 import pkg from "mongoose"
 const { Schema, model } = pkg
 import {
+    friends_collection,
+    friends_schema,
     user_collection,
     user_schema,
     user_status,
@@ -78,6 +80,13 @@ const userSchema = new Schema({
         required: false,
         default: () => new Date(+new Date() + activation_expiry_time),
     },
+
+    friends: [
+        {
+            type: Schema.Types.ObjectId,
+            ref: friends_schema,
+        },
+    ],
 })
 
 export default model(user_schema, userSchema, user_collection)
