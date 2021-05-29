@@ -1,9 +1,8 @@
 import { io } from "socket.io-client"
 
 const authJWT =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MDllZGJlODBiMzlhZjAwMTVkMWM0NDAiLCJpYXQiOjE2MjIxNDE1NjcsImV4cCI6MTYyMjE0MjE2N30.OjUw8H1vLqUXyjLi-MQ7FqtwnVkv7b4z16A63wWUGw4"
-
-const backbone = io("https://cooking-crisis-api-dev.herokuapp.com/backbone", {
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MGIxMzcxYWNlNTdhOTAyODZlOTg3MzgiLCJpYXQiOjE2MjIyODUzODEsImV4cCI6MTYyMjI4NTk4MX0.prVsA0WjWOCp9IhlxGZ9wkQcj12OiPGTZnuFYRGbIcI"
+const backbone = io("http://localhost:3000/backbone", {
     path: "/sockets/",
     auth: {
         token: authJWT,
@@ -13,6 +12,11 @@ const backbone = io("https://cooking-crisis-api-dev.herokuapp.com/backbone", {
 backbone.on("connect", () => {
     console.log("Connected!")
     backbone.emit("ping", Date.now())
+})
+
+backbone.on("notification", (not) => {
+    console.log("Received a notification related to " + not.category)
+    console.log("The notification is: " + not.message)
 })
 
 backbone.on("pong", (time) => {

@@ -4,7 +4,8 @@ import userModel from "../../../models/users"
 import friendsModel from "../../../models/users/friends"
 import { friends_collection, friends_status } from "../../../constants/users"
 import mongoose from "mongoose"
-import { getUserByIdSafe } from "./index"
+import { getUserById, getUserByIdSafe } from "./index"
+import { send_notification } from "../../sockets/backbone"
 
 /**
  * Update (and create, if specified) a friend connection between two users
@@ -133,8 +134,14 @@ export async function respondRequest(req_id, answer) {
         const user_b = request.recipient
         if (answer == "accept") {
             await updateFriends(user_a, user_b, friends_status.friends, false)
+            const sender_obj = await getUserById(user_b)
 
-            // TODO - notify the sender
+            // Notify the sender
+            send_notification(user_a, {
+                category: "friends",
+                message:
+                    "User " + sender_obj.name + " accepted your friend request",
+            })
 
             return {
                 type: "success",
@@ -166,8 +173,14 @@ export async function respondRequest(req_id, answer) {
                     }
                 ),
             ])
+            const sender_obj = await getUserById(user_b)
 
-            // TODO - send notification to sender
+            // Notify the sender
+            send_notification(user_a, {
+                category: "friends",
+                message:
+                    "User " + sender_obj.name + " denied your friend request",
+            })
 
             return {
                 type: "success",

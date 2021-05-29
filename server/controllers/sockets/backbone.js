@@ -1,11 +1,13 @@
 "use strict"
 
 import { authSocketJWT } from "../../middleware/users"
+import { send_notification } from "../../services/sockets/backbone"
+import { getUserByIdSafe } from "../../services/api/users"
 
 export default function (io) {
     io.use(authSocketJWT)
 
-    io.on("connection", (socket) => {
+    io.on("connection", async (socket) => {
         // Create a link to the client, to be able to send direct messages
         socket.join(socket.user_id)
 

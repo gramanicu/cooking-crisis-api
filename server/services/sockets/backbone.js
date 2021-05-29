@@ -9,5 +9,5 @@ import { io } from "../../sockets"
  * @param {Object} notification The notification object that must be sent
  */
 export function send_notification(user_id, notification) {
-    io.sockets.in(user_id).emit("notification", notification)
+    io.of("/backbone").in(user_id).emit("notification", notification)
 }
