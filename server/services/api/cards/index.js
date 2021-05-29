@@ -14,20 +14,8 @@ export async function getCardById(id) {
 
 export async function getAllCards() {
     try {
-        cardModel.count({}, function(err, count){
-            return {count: count};
-        });
-
-
-        // cardModel.find({}, (err, cards) => {
-        //     var cardMap = {}
-
-        //     cards.forEach( card => (cardMap[card._id] = card))
-
-        //     return cardMap;
-        // })
-
-
+        const cards = await cardModel.find({});
+        return cards;
     } catch(err) {
         throw new Error(err)
     }

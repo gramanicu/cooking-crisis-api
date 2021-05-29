@@ -61,6 +61,13 @@ There is a special route, that returns this documentation, _"/docs"_. All the ot
 // DELETE ../friends/remove/:link_id
 ```
 
+-   [Cards api](./docs/cards_api.md)
+
+```js
+// GET ../cards/view
+// GET ../cards/view/:cardid
+```
+
 ### Models
 
 **`User`**

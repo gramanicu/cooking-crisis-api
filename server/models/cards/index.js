@@ -15,4 +15,4 @@ const cardsSchema = new  Schema({
     attack: Number,
 })
 
-export default model("card", cardsSchema, "Cards")
+export default model("card", cardsSchema, "cards")
