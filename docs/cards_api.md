@@ -15,7 +15,7 @@ The friends api is somewhat related to the user api. All its routes are private,
       }
     ```
 
--   **GET `../card/view/:cardid`** - Get a card by id. The id is provided inside the path (`/:cardid`)
+-   **GET `../cards/view/:cardid`** - Get a card by id. The id is provided inside the path (`/:cardid`)
 
     Response format:
 
