@@ -38,7 +38,6 @@ export default class Server {
 
         // Initialize cors middleware
         this.server.use(cors_mw)
-        this.server.options("*", cors_mw)
 
         // Initialize routes
         routes_init(this.server)
