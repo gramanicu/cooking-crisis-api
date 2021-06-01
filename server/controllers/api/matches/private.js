@@ -18,16 +18,20 @@ router.get("/view/:matchid", async (req, res) => {
             let err = new Error("Match does not exist")
             err.status = 404
             return res.status(404).json({
+                res_status: "error",
                 message: "Match not found",
             });
         }
     } catch (err) {
         return res.status(404).json({
+            res_status: "error",
             message: "Match not found",
         });
     }
 
     return res.status(200).json({
+        "res_status": "success",
+        "message": "Match found",
         match: match,
     })
 })
