@@ -9,7 +9,8 @@ The backend server for the Cooking Crisis game.
   - [Project structure](#project-structure)
   - [API](#api)
     - [Routes](#routes)
-    - [Models](#models)
+    - [Sockets](#sockets)
+  - [Database Models](#database-models)
   - [Server settings](#server-settings)
     - [Configs](#configs)
     - [Constants](#constants)
@@ -68,7 +69,21 @@ There is a special route, that returns this documentation, _"/docs"_. All the ot
 // GET ../cards/view/:cardid
 ```
 
-### Models
+### Sockets
+
+The socket api has a few "routes" (namespaces): `/backbone`, `/match`.
+
+**`The backbone api`**
+
+This namespace is the one every client joins the moment they sign in. It is used mainly to allow the server to send notifications (without the client requesting them). For this reason, every client should listen to the `notification` event. For testing purposes, the backbone listens to `ping` events, and "responds with the `pong` event and sends back whatever data it received. By sending the current "timestamp" to the server, the ping/latency/delay can be measured.
+
+**'`/match` api**
+
+This namespace is joined when the match room is created. It will be used to send the game data (the moves, who has the turn, etc.) and chat messages.
+
+NOTE - this API is a WIP
+
+## Database Models
 
 **`User`**
 
@@ -76,33 +91,20 @@ This model contains all the data related to the users accounts. Some fields (lik
 
 The status field is defined in the `server/constants`, inside a "enum" (sort of, as they don't actually exist in js), `user_status`. Each number represents a specific user state (ex. "1 = _offline_", "4 = _playing_"). The `activated` fields represents whether or not the email address was verified and the account is now valid.
 
-```js
-{
- // Data shared by all user types
- "name": String,
- "lowercase_name": String,
- "email": String,
- "password": String,
- "status": Number,
- "elo": Number,
- "is_admin": Boolean,
- "created_at": Date,
- "activated": Boolean,
+The JWT, activation token and status and other variables are also stored in this collection. To store the friend list of a user,
+an array of id's that reference the "friends" schema exist.
 
- // This is the token used to refresh JWT auth tokens
- // (created at login)
- "refresh_token": String,
+**`Friends`**
 
- // These are not required, as they are
- // deleted after the account is created
- "activation_token": String,
- "activation_expiry": Date,
-}
-```
+One important note about this model is that it doesn't store data about a friend, but about the relationship between two users. This can mean (currently) two things: a friend request was sent and is "pending", or that the request was accepted and they are friends.
 
 ## Server settings
 
 The way the server works is altered by two types of settings: `configs` and `constants`. The distinction between them is quite subtle, but basically the configs are specific to the "server environment" (local, development or production). The constants were used to avoid hardcoded information (schema names, regex, expire times, etc..).
+
+**`Other models`**
+
+There are some other models, that store the cards, leaderboards, etc. For more information, read the comments or ask the api developers.
 
 ### Configs
 
@@ -159,8 +161,6 @@ Inside `server/constants`, the program constants are defined. Some of them are r
 -   `jwt_refresh_expiry_time` : `String` - In how much time will the refresh JWT expire. See the constant above for more info.
 -   `jwt_access_expiry_time_seconds`: In how much time (in seconds) will the access JWT expire. This should have the same value as the `jwt_access_expiry_time`, but in seconds.
 -   `cache_default_ttl` : `Number` - How much time (in seconds) are the values in the Redis Cache stored for
-
-<!-- This heading can be renamed / documentation in it relocated/reorganized -->
 
 ## Conventions / Coding styles
 
