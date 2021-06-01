@@ -1,4 +1,4 @@
-# /friends API
+# /cards API
 
 The friends api is somewhat related to the user api. All its routes are private, so they require the access token. The following routes exist:
 

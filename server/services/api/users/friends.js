@@ -116,7 +116,7 @@ export async function sendRequest(snd_id, rec_id) {
 export async function respondRequest(req_id, answer) {
     if (!mongoose.isValidObjectId(req_id)) {
         return {
-            type: "error",
+            res_status: "error",
             message: "Invalid id",
         }
     }
@@ -125,7 +125,7 @@ export async function respondRequest(req_id, answer) {
 
         if (!request) {
             return {
-                type: "error",
+                res_status: "error",
                 message: "The request id is invalid",
             }
         }
@@ -144,7 +144,7 @@ export async function respondRequest(req_id, answer) {
             })
 
             return {
-                type: "success",
+                res_status: "success",
                 message: "The friend request was accepted",
             }
         } else {
@@ -183,7 +183,7 @@ export async function respondRequest(req_id, answer) {
             })
 
             return {
-                type: "success",
+                res_status: "success",
                 message: "The friend request was denied",
             }
         }
@@ -215,7 +215,7 @@ export async function getRequests(user_id) {
 
         if (!doc.friends.length) {
             return {
-                type: "success",
+                res_status: "success",
                 message: "No requests for this user",
                 data: [],
             }
@@ -223,7 +223,7 @@ export async function getRequests(user_id) {
         const friends = doc.friends
 
         return {
-            type: "success",
+            res_status: "success",
             message: "Returned the requests for this user",
             data: friends,
         }
@@ -239,7 +239,7 @@ export async function getRequests(user_id) {
 export async function getFriendList(user_id) {
     if (!mongoose.isValidObjectId(user_id)) {
         return {
-            type: "error",
+            res_status: "error",
             message: "Invalid id",
         }
     }
@@ -255,7 +255,7 @@ export async function getFriendList(user_id) {
 
         if (!doc.friends.length) {
             return {
-                type: "success",
+                res_status: "success",
                 message: "No friends for this user",
                 data: [],
             }
@@ -273,7 +273,7 @@ export async function getFriendList(user_id) {
         )
 
         return {
-            type: "success",
+            res_status: "success",
             message: "Returned the friend list for this user",
             data: arr,
         }
@@ -289,7 +289,7 @@ export async function getFriendList(user_id) {
 export async function removeFriend(link_id) {
     if (!mongoose.isValidObjectId(link_id)) {
         return {
-            type: "error",
+            res_status: "error",
             message: "Invalid id",
         }
     }
@@ -299,7 +299,7 @@ export async function removeFriend(link_id) {
 
         if (doc == null) {
             return {
-                type: "error",
+                res_status: "error",
                 message: "Friend relationship does not exist",
             }
         }
@@ -328,7 +328,7 @@ export async function removeFriend(link_id) {
         ])
 
         return {
-            type: "success",
+            res_status: "success",
             message: "The friend was removed",
         }
     } catch (err) {
