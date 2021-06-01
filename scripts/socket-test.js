@@ -1,7 +1,7 @@
 import { io } from "socket.io-client"
 
 const authJWT =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MGIxMzcxYWNlNTdhOTAyODZlOTg3MzgiLCJpYXQiOjE2MjIyODUzODEsImV4cCI6MTYyMjI4NTk4MX0.prVsA0WjWOCp9IhlxGZ9wkQcj12OiPGTZnuFYRGbIcI"
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2MDliZjViOTM5YWZlODExNmNkOWM1MTciLCJpYXQiOjE2MjIyOTk4MTcsImV4cCI6MTYyMjMwMDQxN30.5TAnyY7JPP95U501gj1f-A_uV4ddi2BL74g3iOAnQYs"
 const backbone = io("http://localhost:3000/backbone", {
     path: "/sockets/",
     auth: {
