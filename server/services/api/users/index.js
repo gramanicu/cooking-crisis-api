@@ -151,8 +151,7 @@ export async function createAccount(username, password, email) {
 
     // Create verification link
     const activation_token = crypto.randomBytes(32).toString("hex")
-    const auth_link =
-        config.hostname + "/api/v1/users/activation/" + activation_token
+    const auth_link = config.activation_address + activation_token
 
     // Send the link
     try {

@@ -44,7 +44,8 @@ let defaultConfig = {
     verify_activated: true,
     hostname: "http://localhost:3000",
     port: process.env.PORT,
-    activation_address: "https://cooking-crisis-web-dev.herokuapp.com",
+    activation_address:
+        "https://cooking-crisis-web-dev.herokuapp.com/activate/",
 }
 
 export default merge(defaultConfig, envConfig)
