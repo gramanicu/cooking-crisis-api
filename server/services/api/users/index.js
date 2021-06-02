@@ -433,7 +433,9 @@ export async function refreshAccessToken(refresh_token) {
  */
 export async function deleteExpiredTokens() {
     try {
-        await userModel.deleteMany({ activation_expiry: { $lte: new Date() } })
+        await userModel.deleteMany({
+            activation_expiry: { $exists: true, $lte: new Date() },
+        })
     } catch (err) {
         throw new Error(err)
     }
