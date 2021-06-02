@@ -264,7 +264,9 @@ export async function getFriendList(user_id) {
 
         const arr = await Promise.all(
             friends.map(async (item) => {
-                const user = await getUserByIdSafe(item.requester)
+                const id =
+                    item.requester == user_id ? item.recipient : item.requester
+                const user = await getUserByIdSafe(id)
                 return {
                     name: user.name,
                     link_id: item._id,
